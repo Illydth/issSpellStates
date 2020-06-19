@@ -1,0 +1,2112 @@
+@@ @onCampaignLoad
+@PROPS@ fontColor=yellow ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=red ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-Core ; tooltip= ; minWidth=94
+<!-- All functions will be given a UDF name excluding tags and special characters
+
+It is recommended to change the prefix to avoid conflict with other lib tokens. 
+   Format is your initials (xx) and a short code (lib) to represent the token.
+   Functions can then be called by this format: xx.lib.functionName() 
+-->
+
+[H: prefix = "iss."]
+[H: this = getMacroLocation()]
+
+<!-- Define functions here with options other than ignoreOutput = 1 and NewScope = 1 -->
+<!-- Example. Feel free to delete -->
+[R: defineFunction(prefix+"reload","onCampaignLoad@"+this,0,1)]
+
+[H: defineFunction("pause","pause@"+this,1,0)]
+[H: defineFunction("watch","watch@"+this,1,0)]
+[H: defineFunction("label","label@"+this,1)]
+[H: defineFunction("output","output@"+this,1)]
+
+<!-- default settings for functions. No output and parent variables not accessed without passing -->
+[H: allMacros = getMacros("json")]
+[H: ignoreOutput = 1]
+[H: newScope = 1]
+
+<!-- Define UDFs.  Already defined UDFs will not be redefined. -->
+[R, foreach(macroName,allMacros), code: {
+   <!-- get rid of any html in macro name -->
+   [H: functionName = replace(macroName,"<[^>]*?>","")]
+   <!-- remove special characters from macro name. Only numbers, letters, underscore and period allowed -->
+   [H: functionName = replace(functionName,"[^a-zA-Z0-9_.]","")]
+   <!-- add the prefix for the final function name -->
+   [H: functionName = strformat("%{prefix}%{functionName}")]
+   [R, if(! isFunctionDefined(functionName)): defineFunction(functionName,strformat("%{macroName}@"+this),ignoreOutput,newScope)]
+}]
+
+!!
+@@ @DM States Toolbox
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Displays the "DM States Toolbox" Dialog to add/remove spell effects from the SpellStates Toolbox.<br>
+<br>
+Runs the "openStatesToolbox" macro in the Spell States Toolbox section on Lib:SpellStates.</html> ; minWidth=180px
+[h: sBuff = ""]
+[h: sDebuff = ""]
+[h: spellNum = 0]
+[h: spellName = "No Spell Found"]
+
+[h: passedVars = json.append( "", sBuff, sDebuff, spellName, spellNum )]
+[h, macro("openStatesToolbox@lib:issSpellStates"): passedVars]
+
+!!
+@@ @Get Token Effects
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=orange ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip= ; minWidth=180 px
+[h: campaignStateText = "Campaign States"]
+[h: buffText = "Buffs"]
+[h: debuffText = "Debuffs"]
+
+[h: ids = getSelected("json")]
+[r, foreach(id, ids, ",", "json"), CODE:
+{
+	[h: buffHTML = ""]
+	[h: debuffHTML = ""]
+	[h: tokenName = getName(id)]
+	[h: buffEffListParams = json.append("", id, 1, 0)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): buffEffListParams]
+	[h: buffList = macro.return]
+	[h: debuffEffListParams = json.append("", id, 0, 1)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): debuffEffListParams]
+	[h: debuffList = macro.return]
+	[h, foreach(spellNum, buffList), CODE:
+	{
+		[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+		[h: spellRecord = macro.return]
+		[h: spellAll = json.get(spellRecord, spellNum)]
+		[h: spellName = json.get(spellAll, "Name")]
+		[h: buffDur = json.get(buffList, spellNum)]
+		[h: passedVars = json.set("{}", "spellName", spellName)]
+		[h: buffHTML = buffHTML + macroLink(spellName + " (" + 
+		  buffDur + ")", "openSpellLookup@Lib:issSpellStates", "none", passedVars) + 
+		  ", "]
+	}]
+	[h, foreach(spellNum, debuffList), CODE:
+	{
+		[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+		[h: spellRecord = macro.return]
+		[h: spellAll = json.get(spellRecord, spellNum)]
+		[h: spellName = json.get(spellAll, "Name")]
+		[h: debuffDur = json.get(debuffList, spellNum)]
+		[h: passedVars = json.set("{}", "spellName", spellName)]
+		[h: debuffHTML = debuffHTML + macroLink(spellName + " (" + 
+			debuffDur + ")", "openSpellLookup@Lib:issSpellStates", "none", 
+			passedVars) + ", "]
+	}]
+
+	[h: tokenStates = getTokenStates(",", "*", id)]
+
+	<div style="background-color: #0B10E7; color: #FFFFFF; padding-top:2px; padding-bottom:5px; padding-left:8px; padding-right:8px;">
+		<b>Current State ({tokenName})</b>
+		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
+			<div style="background-color:#000000; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
+				<i>{campaignStateText}</i>
+			</div>
+			{tokenStates}
+		</div>
+		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
+			<div style="background-color:#06CB14; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
+				<i>{buffText}</i>
+			</div>
+			{buffHTML}
+		</div>
+		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
+			<div style="background-color:#DE0728; color: #000000; padding:2px; margin-bottom:-5px;">
+				<i>{debuffText}</i>
+			</div>
+			{debuffHTML}
+		</div>	
+	</div>
+}]
+
+!!
+@@ @Lookup Spell Info
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Prompts for Spell to Look Up and Opens the Spell Information Window to that Spell.<br>
+<br>
+Opens the "displaySpellLookup" macro in the "Spell Lookup" section of Lib:SpellStates.</html> ; minWidth=180 px
+[h: spellName = "No Spell Found"]
+[h: passedVars = json.set("{}", "spellName", spellName)]
+[h, macro("openSpellLookup@Lib:issSpellStates"): passedVars]
+
+!!
+@@ @States Management Form
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Displays the "States Management" Dialog to add/remove spell effects from Tokens.<br>
+<br>
+Runs the "openStatesMgt" macro in the DM States Management section on Lib:SpellStates.</html> ; minWidth=180px
+[h, macro("openStatesMgt@lib:issSpellStates"): "all"]
+
+!!
+@@ @Function Test Harness
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=1 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip=Perform Standard Testing on General Function Macros ; minWidth=
+<h2>******************* TEST RUN **********************</h2>
+<ul>
+[spellNum = 3]
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+[h: spellData = macro.return]
+
+<li>Good: GetSpellByNum(3): [r: spellData]</li>
+
+[spellNum = 100]
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+[h: spellData = macro.return]
+
+<li>Bad: GetSpellByNum(100): [r: spellData]</li>
+
+[spellNum = 3]
+[h, macro("getSpellNameByNum@Lib:issSpellStates"): spellNum]
+[h: spellData = macro.return]
+
+<li>Good: GetSpellNameByNum(3): [r: spellData]</li>
+
+[spellNum = 100]
+[h, macro("getSpellNameByNum@Lib:issSpellStates"): spellNum]
+[h: spellData = macro.return]
+
+<li>Bad: GetSpellNameByNum(100): [r: spellData]</li>
+
+[spellName = "Mage Armor"]
+[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
+[h: spellData = macro.return]
+
+<li>Good: GetSpellNumByName(Mage Armor): [r: spellData]</li>
+
+[spellName = "Junk"]
+[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
+[h: spellData = macro.return]
+
+<li>Bad: GetSpellNumByName(Junk): [r: spellData]</li>
+
+[spellName = "Mage Armor"]
+[h, macro("getSpellByName@Lib:issSpellStates"): spellName]
+[h: spellData = macro.return]
+
+<li>Good: GetSpellByName(Mage Armor): [r: spellData]</li>
+
+[spellName = "Junk"]
+[h, macro("getSpellByName@Lib:issSpellStates"): spellName]
+[h: spellData = macro.return]
+
+<li>Bad: GetSpellByName(Junk): [r: spellData]</li>
+
+[inData = json.set("{}", 15, "Hex", "optRefSpellDur", 0)]
+[macro("testapplySpellEffect@Lib:issSpellStates"): inData]
+[h: spellData = macro.return]
+
+</ul>
+<h2>************************** TEST RUN COMPLETE **************************</h2>
+
+!!
+@@ @label
+@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
+[H: label = arg(0)]
+[dialog("Label"): {[r: label]}]
+
+!!
+@@ @pause
+@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
+[H: sub_numVars = argCount()]
+[H: sub_vars = "{}"]
+[H, for(sub_i,0,sub_numVars): sub_vars = json.set(sub_vars,arg(sub_i),eval(arg(sub_i)))]
+[H: sub_names = json.fields(sub_vars," ")]
+
+[H: sub_output = "<pre>"+json.indent(replace(sub_vars,"<","&lt;"))+"</pre>"]
+[H: sub_output = replace(sub_output,decode("%0A"),"<br>")]
+[H: sub_output = replace(sub_output,"     ","&nbsp;&nbsp;&nbsp;")]
+[H: sub_output = replace(sub_output,"#","&#35")]
+[H: sub_output = replace(sub_output,"\\|","&#124")]
+[H: sub_output.proxy = replace(sub_output,"asset:","image:")]
+
+[H: continue = input(strformat("Pause: %{sub_names}|<html><div width=800>%{sub_output.proxy}</div></html>||label|span=true"))]
+[H, if(! continue), code: {
+   [dialog("Pause: "+sub_names): {[r: strformat("<html><div width=800>%{sub_output}</div></html>")]}]
+   [H: abort(0)]
+};{}]
+
+!!
+@@ @watch
+@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
+[H: sub_numVars = argCount()]
+[H: sub_vars = "{}"]
+[H, for(sub_i,0,sub_numVars): sub_vars = json.set(sub_vars,arg(sub_i),eval(arg(sub_i)))]
+[H: sub_names = json.fields(sub_vars," ")]
+[H: sub_output = replace(json.indent(replace(sub_vars,"<","&lt;")),decode("%0A"),"<br>")]
+[H: sub_output = replace(sub_output,"     ","&nbsp;&nbsp;&nbsp;")]
+[dialog("Watch: "+sub_names): {[r: strformat("<html><div width=800>%{sub_output}</div></html>")]}]
+
+!!
+@@ @PrintDisplayLayout
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=1 ; group=ZZZ-Saved Code ; tooltip= ; minWidth=
+/me
+[h: campaignStateText = "Campaign States"]
+[h: buffText = "Buffs"]
+[h: debuffText = "Debuffs"]
+
+<div style="background-color: #0B10E7; color: #FFFFFF; padding-top:2px; padding-bottom:5px; padding-left:8px; padding-right:8px;">
+	<b>Current State</b>
+	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
+		<div style="background-color:#000000; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
+			<i>{campaignStateText}</i>
+		</div>
+		<b>Reaction:</b> Reduce any falling damage you take by an amount.
+	</div>
+	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
+		<div style="background-color:#06CB14; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
+			<i>{buffText}</i>
+		</div>
+		<b>Reaction:</b> Reduce any falling damage you take by an amount.
+	</div>
+	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
+		<div style="background-color:#DE0728; color: #000000; padding:2px; margin-bottom:-5px;">
+			<i>{debuffText}</i>
+		</div>
+		<b>Reaction:</b> Reduce any falling damage you take by an amount.
+	</div>	
+</div>
+
+!!
+@@ @PrintDisplayTesting
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=1 ; group=ZZZ-Saved Code ; tooltip= ; minWidth=
+/me
+[h: campaignStateText = "Campaign States"]
+[h: buffText = "Buffs"]
+[h: debuffText = "Debuffs"]
+
+<div style="background-color: #0B10E7; color: #FFFFFF; padding-top:2px; padding-bottom:5px; padding-left:8px; padding-right:8px;">
+	<b>Current State</b>
+	<div style="background-color:#A1AAA1; color: #000000; padding:2px;">
+		<div style="background-color:#000000; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
+			<i>{campaignStateText}</i>
+		</div>
+		<b>Reaction:</b> Reduce any falling damage you take by an amount.
+	</div>
+	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
+		<div style="background-color:#06CB14; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
+			<i>{buffText}</i>
+		</div>
+		<b>Reaction:</b> Reduce any falling damage you take by an amount.
+	</div>
+	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
+		<div style="background-color:#DE0728; color: #000000; padding:2px; margin-bottom:-5px;">
+			<i>{debuffText}</i>
+		</div>
+		<b>Reaction:</b> Reduce any falling damage you take by an amount.
+	</div>	
+</div>
+
+!!
+@@ @cssExampleCode
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Saved Code ; tooltip= ; minWidth=
+.spellButtonClickExample {
+    display: inline-block;
+	background-color: #e7e7e7; /* Button Background Color */
+	color: black; /* Button Font Color */
+	border: none;
+	text-align: center;
+	text-decoration: none;
+	font-size: 10px; /* Button Size */
+	border-radius: 2px; /* 2px = Square Button, 15px = Rounded Button */
+	width: 85px; /* Button Width, Setup for 5 button columns in a 500ish px frame */
+	cursor: pointer;
+	border: 2px solid #4CAF50; /* Green */
+}
+
+.spellButtonClickExample:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.spellButtonClickExample:active {
+  background-color: #4CAF50;
+  box-shadow: 0 5px #666; /* Gray Shadow as Button is Pushed */
+  transform: translateY(4px);
+}
+
+!!
+@@ @displaySpellLookup
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Saved Code ; tooltip=<html>Prompt User for Spell to Look Up and Open the Spell Info Dialog.<br>
+<br>
+Provides Main Routine for Spell Lookup Functionality.<br>
+<ul>
+<li>Parameters: None</li>
+<li>Returns: None</li>
+<li>Input: Spell Name</li>
+</ul>
+Acknowledgements:<br>
+<ul>
+<li>KellENDER</li>
+<li>Jason_c_o</li>
+<li>Illydth</li>
+</ul></html>
+ ; minWidth=
+[h: spellCount = 1]
+[h: stopSearch = 0]
+[h:status=input(
+    "Spell|0|Spell Name?")]
+[h:abort(status)]
+[h: SpellToFind = Spell]
+
+[h: rowCount = getTablePicksLeft("issSpellStates")]
+
+[h, while(stopSearch == 0 && spellCount <= rowCount), CODE:
+{
+    [tblRecord = getTableEntry("issSpellStates", spellCount)]
+    [SpellAll = json.get(tblRecord, "value")]
+    [SpellName = json.get(SpellAll, "Name")]
+    [if(SpellName == SpellToFind), CODE:
+    {
+        [FoundSpell = spellCount]
+        [stopSearch = 1]
+    };
+    {}]     
+    [spellCount = spellCount + 1]
+}]
+
+[if(StopSearch == 0), CODE:
+{
+    [h: SpellName = "Spell Search Failed - <b>Spell Not Found!</b>"]
+	[h: SpellSrc = ""]
+	[h: SpellLevel = ""]
+	[h: SpellCT = ""]
+	[h: SpellDur = ""]
+	[h: SpellSch = ""]
+	[h: SpellRange = ""]
+	[h: SpellComp = ""]
+	[h: SpellClass = ""]
+	[h: SpellTxt = ""]
+	[h: SpellAHL = ""]    
+};
+{
+	[h: tblRecord = getTableEntry("Spells", FoundSpell)]
+	[h: SpellAll = json.get(tblRecord, "value")]
+	[h: SpellSrc = json.get(SpellAll, "Source")]
+	[h: SpellLevel = json.get(SpellAll, "Level")]
+	[h: SpellCT = json.get(SpellAll, "Casting Time")]
+	[h: SpellDur = json.get(SpellAll, "Duration")]
+	[h: SpellSch = json.get(SpellAll, "School")]
+	[h: SpellRange = json.get(SpellAll, "Range")]
+	[h: SpellComp = json.get(SpellAll, "Components")]
+	[h: SpellClass = json.get(SpellAll, "Classes")]
+	[h: SpellTxt = json.get(SpellAll, "Text")]
+	[h: SpellAHL = json.get(SpellAll, "At Higher Levels")]    
+}]
+
+[frame("Spell Lookup"): {
+  <html>
+    <head>
+      <title>Spell Information</title>
+    </head>
+    <body>
+     <table>
+      <tr>
+       <td><b>Spell Name</b></td>
+       <td>[r:SpellName]</td>
+      </tr>
+      <tr>
+       <td><b>Source Book</b></td>
+       <td>[r:SpellSrc]</td>
+      </tr>
+      <tr>
+       <td><b>Level</b></td>
+       <td>[r:SpellLevel]</td>
+      </tr>
+      <tr>
+       <td><b>Casting Time</b></td>
+       <td>[r:SpellCT]</td>
+      </tr>
+      <tr>
+       <td><b>Duration</b></td>
+       <td>[r:SpellDur]</td>
+      </tr>
+      <tr>
+       <td><b>School</b></td>
+       <td>[r:SpellSch]</td>
+      </tr>
+      <tr>
+       <td><b>Range</b></td>
+       <td>[r:SpellRange]</td>
+      </tr>
+      <tr>
+       <td><b>Components</b></td>
+       <td>[r:SpellComp]</td>
+      </tr>
+      <tr>
+       <td><b>Class</b></td>
+       <td>[r:SpellClass]</td>
+      </tr>
+      <tr>
+       <td><b>Spell Text</b></td>
+       <td>[r:SpellTxt]</td>
+      </tr>
+      <tr>
+       <td><b>At Higher Levels</b></td>
+       <td>[r:SpellAHL]</td>
+      </tr>
+     </table>
+     <br>
+     [macroLink("New Spell", "displaySpellLookup@Lib:issSpellStates")]
+    </body>
+  </html>
+}]
+
+!!
+@@ @addEffectToToken
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+Adds the Passed in Spell Effect to the Token, or Resets Duration on spell if already applied.<br>
+<br>
+If the spell effect passed does not set an effect, this becomes a no-operation.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - SpellName - The Name of the Spell to apply to the token.</li>
+</ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+<i>Note: This API will set or not set Campaign States based upon the current setting
+of "optAddCStateOnApply"<br>on the Lib:issSpellStates Token. To change the behavior of the API (apply or not apply campaign states)<br>set the state on the Library Token
+accordingly.</i><br>
+<br>
+<i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i>
+</html> ; minWidth=
+[h: spellName = json.get(macro.args, 0)]
+
+[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
+[h: spellNum = macro.return]
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+[h: spellRecord = macro.return]
+[h: spellAll = json.get(spellRecord, spellNum)]
+[h: sBuff = json.get(spellAll, "Buff")]
+[h: sDebuff = json.get(spellAll, "Debuff")]
+[h: effectCount = json.get(spellAll, "EffectCount")]
+
+[h: appCStates = getLibProperty("optAddCStateOnApply", "Lib:issSpellStates")]
+
+[h: ids = getSelected()]
+[h, foreach(id, ids), CODE:
+{
+	[h: addResetEffectParams = json.append("", id, spellNum, appCStates)]
+	[macro("addResetTokenEffect@Lib:issSpellStates"): addResetEffectParams]
+}]
+
+!!
+@@ @clearEffectsFromToken
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+Removes all applied spell effects (beneficial and determental) from the selected token or
+tokens.<br>
+<br>
+<b>Inputs:</b>
+<ul><li>N/A</li></ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+<i>Note: This API will remove or not remove Campaign States based upon the current setting
+of "optRemCStateOnRemove"<br>on the Lib:issSpellStates Token. To change the behavior of the API (remove or not remove campaign states)<br>set the state on the Library Token
+accordingly.</i><br>
+<br>
+<i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i>
+</html> ; minWidth=
+[h: remCStates = getLibProperty("optRemCStateOnRemove", "Lib:issSpellStates")]
+
+[h: ids = getSelected()]
+[h, foreach(id, ids), CODE:
+{
+	[switchToken(id)]
+	[h: getEffectsParams = json.append("", id, 1, 0)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): getEffectsParams]
+	[h: buffEffects = macro.return]
+	[r, foreach(effect, buffEffects), CODE:
+	{
+		[h: buffID = effect]
+		[h: remEffectParams = json.append("", id, buffID, remCStates)]
+		[h, macro("removeTokenEffect@Lib:issSpellStates"): remEffectParams]
+	}]		
+	[h: getEffectsParams = json.append("", id, 0, 1)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): getEffectsParams]
+	[h: debuffEffects = macro.return]
+	[h, foreach(effect, debuffEffects), CODE:
+	{
+		[h: debuffID = effect]
+		[h: remEffectParams = json.append("", id, debuffID, remCStates)]
+		[h, macro("removeTokenEffect@Lib:issSpellStates"): remEffectParams]
+	}]
+}]
+
+!!
+@@ @decrementSpellDuration
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+Decrements the "remaining spell duration counter" on applied effects on
+any selected token.<br>
+<br>
+Only values that are not "0" or "" will be touched.<br>
+<br>
+<b>Input:</b>
+<ul><li>N/A</li></ul>
+<b>Output:</b>
+<ul><li>N/A</li></ul>
+<b>Properties Affected</b>
+<ul>
+<li>spellBuffs</li>
+<li>spellDebuffs</li>
+</ul>
+<i>Note: This is an "API" call, intended to be used within a "Next Round" / "End Iniative"
+or other process written by the campaigin implimentor.<br>  No functionality within 
+"SpellStates" exists that uses this functionality.  It is being provided for use by
+campaign frameworks in the case it&#39;s useful.</i>
+</html> ; minWidth=
+[h: ids = getSelected()]
+[h, foreach(id, ids), CODE: 
+{
+	[h: switchToken(id)]
+
+	[h: getEffectsParams = json.append("", id, 1, 0)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): getEffectsParams]
+	[h: buffEffects = macro.return]
+	[h, macro("decrementTimer@Lib:issSpellStates"): buffEffects]
+	[h: buffEffects = macro.return]
+	[h: setProperty("spellBuffs", buffEffects)]
+
+	[h: getEffectsParams = json.append("", id, 0, 1)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): getEffectsParams]
+	[h: debuffEffects = macro.return]
+	[h, macro("decrementTimer@Lib:issSpellStates"): debuffEffects]
+	[h: debuffEffects = macro.return]
+	[h: setProperty("spellDebuffs", debuffEffects)]
+}]
+
+!!
+@@ @getEffectsOnToken
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+Returns a JSON Listing of all spell effects currently on the token or tokens selected.<br>
+See Below for the JSON Format.<br>
+<br>
+<b>Inputs:</b>
+<ul><li>N/A</li></ul>
+<b>Outputs:</b>
+<ul
+><li>effectsObj - JSON Object of Below Format showing all buffs and debuffs on the selected token or tokens.</li>
+</ul>
+<i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i><br>
+<br>
+<h3>JSON Format</h3>
+<pre>
+[
+  "6BF32A570F894A40A9CA00A14B02F827",
+  {"buffs":   [
+    {"Aid": 4800},
+    {"Bless": 10}
+  ]},
+  {"debuffs":   [
+    {"Bane": 10},
+    {"Banishment": 10}
+  ]},
+  "D310F6322C2048D3886CF2884E5D15CE",
+  {"buffs":   [
+    {"Aid": 4800},
+    {"Bless": 10}
+  ]},
+  {"debuffs":   [
+    {"Bane": 10},
+    {"Banishment": 10}
+  ]}
+]
+</pre>
+</html> ; minWidth=
+[h: effectsObj = ""]
+
+[h: ids = getSelected()]
+[r, foreach(id, ids), CODE:
+{
+	[h: buffSpellObj = ""]
+	[h: debuffSpellObj = ""]
+	[h: buffsObj = ""]
+	[h: debuffsObj = ""]
+	[h: switchToken(id)]
+	[h: getEffectsParams = json.append("", id, 1, 0)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): getEffectsParams]
+	[h: buffEffects = macro.return]
+	[r, foreach(effect, buffEffects), CODE:
+	{
+		[h: buffID = effect]
+		[h: duration = json.get(buffEffects, effect)]
+		[h, macro("getSpellNameByNum@Lib:issSpellStates"): buffID]
+		[h: buffName = macro.return]
+		[h: buffSpellObj = json.append(buffSpellObj, 
+			json.set("", buffName, duration))]
+	}]		
+	[h: buffsObj = json.set("{}", "buffs", buffSpellObj)]
+	[h: getEffectsParams = json.append("", id, 0, 1)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): getEffectsParams]
+	[h: debuffEffects = macro.return]
+	[r, foreach(effect, debuffEffects), CODE:
+	{
+		[h: debuffID = effect]
+		[h: duration = json.get(debuffEffects, effect)]
+		[h, macro("getSpellNameByNum@Lib:issSpellStates"): debuffID]
+		[h: debuffName = macro.return]
+		[h: debuffSpellObj = json.append(debuffSpellObj, 
+			json.set("", debuffName, duration))]
+	}]		
+	[h: debuffsObj = json.set("{}", "debuffs", debuffSpellObj)]
+	[h: effectsObj = json.append(effectsObj, id, buffsObj, debuffsObj)]
+}]
+
+[h: macro.return = effectsObj]
+
+!!
+@@ @isEffectOnToken
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+Checks for the passed in spell effect on the token, returns 1 if there, 0 if not and<br>
+2 if more than one token is selected.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - SpellName - The Name of the Spell to validate on the token.</li>
+</ul>
+<b>Outputs:</b>
+<ul>
+<li>0 - Numeric Value returned if the token does NOT contain the effect.</li>
+<li>1 - Numeric Value returned if the token does contain the effect.</li>
+<li>2 - Numeric Value returned if more than one token was selected.</li>
+</ul>
+<i>Note: This API returns simple True/False information whether the checked<br>
+for spell effect resides on the token. However, it is intended that this API is<br>
+used for checking the effect on a single token at a time. If more than one token<br>
+is passed to the function at once, a 2 is returned to identify incorrect usage.</i><br>
+</html> ; minWidth=
+[h: spellName = json.get(macro.args, 0)]
+
+[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
+[h: spellNum = macro.return]
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+[h: spellRecord = macro.return]
+[h: spellAll = json.get(spellRecord, spellNum)]
+[h: sBuff = json.get(spellAll, "Buff")]
+[h: sDebuff = json.get(spellAll, "Debuff")]
+
+[h: ids = getSelected("json")]
+[if(json.length(ids) == 1), CODE: 
+{
+	[h: id = json.get(ids, 0)]
+	[h: effectsListParams = json.append("", id, sBuff, sDebuff)]
+	[macro("getTokenEffectsList@Lib:issSpellStates"): effectsListParams]
+	[h: effectList = macro.return]
+	[r, if(json.contains(effectList, spellNum)), CODE:
+	{ [h: retVal = 1] };
+	{ [h: retVal = 0] }]
+};
+{ [h: retVal = 2] }]
+
+[h: macro.return = retVal]
+
+!!
+@@ @removeEffectFromToken
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+Removes the Passed in Spell Effect from the Token if it exists as an effect currently on the token.<br> This has no effect on a Token for which the state isn&#39;t set or for a spell 
+effect that does not set or remove states.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - SpellName - The Name of the Spell to apply to the token.</li>
+</ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+<i>Note: This API will remove or not remove Campaign States based upon the current setting
+of "optRemCStateOnRemove"<br>on the Lib:issSpellStates Token. To change the behavior of the API (remove or not remove campaign states)<br>set the state on the Library Token
+accordingly.</i><br>
+<br>
+<i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i>
+</html> ; minWidth=
+[h: spellName = json.get(macro.args, 0)]
+
+[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
+[h: spellNum = macro.return]
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+[h: spellRecord = macro.return]
+[h: spellAll = json.get(spellRecord, spellNum)]
+[h: sBuff = json.get(spellAll, "Buff")]
+[h: sDebuff = json.get(spellAll, "Debuff")]
+[h: effectCount = json.get(spellAll, "EffectCount")]
+
+[h: remCStates = getLibProperty("optRemCStateOnRemove", "Lib:issSpellStates")]
+
+[h: ids = getSelected()]
+[r, foreach(id, ids), CODE:
+{
+	[h: removeEffectParams = json.append("", id, spellNum, remCStates)]
+	[macro("removeTokenEffect@Lib:issSpellStates"): removeEffectParams]
+}]
+
+!!
+@@ @addResetTokenEffect
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+Adds the Passed in Spell Effect to the Token, or Resets Token to Initial Duration.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - ID - The ID of the Token to which to apply the effect.</li>
+<li>(1) - SpellNum - The Number of the Spell to apply to the token.</li>
+<li>(2) - refSpellDur (1/0) - True/False to Reset Duration or Add Effect.</li>
+</ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+</html> ; minWidth=
+[h: effectList = ""]
+[h: addRefEffectParams = macro.args]
+[h: id = json.get(addRefEffectParams, 0)]
+[h: spellNum = json.get(addRefEffectParams, 1)]
+[h: appCStates = json.get(addRefEffectParams, 2)]
+
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+[h: spellRecord = macro.return]
+
+[h: spellAll = json.get(spellRecord, spellNum)]
+[h: sBuff = json.get(spellAll, "Buff")]
+[h: sDebuff = json.get(spellAll, "Debuff")]
+[h: effectCount = json.get(spellAll, "EffectCount")]
+[h: spellName = json.get(spellAll, "Name")]
+[h: stateList = json.get(spellAll, "State")]
+
+[h: switchToken(id)]
+[h, if(sBuff == 1), CODE: { [effectList = getProperty("spellBuffs")] };{}]
+[h, if(sDebuff == 1), CODE: { [effectList = getProperty("spellDebuffs")] };{}]
+
+[h: newEffectList = json.set(effectList, spellNum, effectCount)]
+[h, if(sBuff == 1), CODE: { [setProperty("spellBuffs", newEffectList)] };{}]
+[h, if(sDebuff == 1), CODE: { [setProperty("spellDebuffs", newEffectList)] };{}]
+
+[h, if(stateList != "" && appCStates == 1), CODE:
+{ 
+	[h, foreach(state, stateList), CODE: 
+	{ 
+		[setState(state, 1)]
+	}] 
+};{}]
+
+!!
+@@ @decrementTimer
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+Decrements the Spell Duration Timer on passed in spell effects list.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - effectsList - Listing of Spell Effects as per the token property.</li>
+</ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+<i>Note: This is called only by the "decrementSpellDuration" API and is not used by
+other functionality within issSpellStates.</i><br>
+</html> ; minWidth=
+[h: effectsList = macro.args]
+[h, foreach(effect, effectsList), CODE:
+{
+	[h: timerNum = json.get(effectsList, effect)]
+	[if(timerNum != 0 && timerNum != ""), CODE:
+	{
+		[h: timerNum = timerNum - 1]
+		[h: effectsList = json.set(effectsList, effect, timerNum)]		
+	};{}]
+}]
+[h: macro.return = effectsList]
+
+!!
+@@ @getSpellByName
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=Get a Spell from the Database by Spell Name, Returns all Spell Data keyed to the Spell Number. ; minWidth=
+[h: spellCount = 1]
+[h: stopSearch = 0]
+
+[h: spellName = json.get(macro.args, 0)]
+[h: rowCount = getTablePicksLeft("issSpellStates")]
+
+[h, while(stopSearch == 0 && spellCount <= rowCount), CODE:
+{
+	[tblRecord = getTableEntry("issSpellStates", spellCount)]
+	[spellAll = json.get(tblRecord, "value")]
+	[spellNameFound = json.get(spellAll, "Name")]
+	[if(spellName == spellNameFound), CODE:
+	{
+		[spellNumFound = spellCount]
+		[stopSearch = 1]
+	};{}]
+	[spellCount = spellCount + 1]
+}]
+
+[h, if(stopSearch == 0), CODE:
+{
+	[returnData = json.set( "{}", -1, -1 )]
+};
+{
+	[tblRecord = getTableEntry("issSpellStates", spellNumFound)]
+	[spellData = json.get(tblRecord, "value")]
+	[returnData = json.set( "{}", spellName, spellData )]
+}]
+
+[h: macro.return = returnData]
+
+!!
+@@ @getSpellByNum
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=Returns the Database Information in JSON format for a Spell applied to spell number. ; minWidth=
+[h: spellNum = json.get(macro.args, 0)]
+[r: spellNum]
+[h: rowCount = getTablePicksLeft("issSpellStates")]
+
+[h, if(spellNum <= rowCount), CODE:
+{
+	[tblRecord = getTableEntry("issSpellStates", spellNum)]
+	[spellData = json.get(tblRecord, "value")]	
+	[returnData = json.set( "{}", spellNum, spellData )]
+};
+{
+	[returnData = json.set( "{}", -1, -1 )]
+}]
+
+[h: macro.return = returnData]
+
+!!
+@@ @getSpellNameByNum
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=Returns the spell name from the database table for the spell record number of the spell passed in. ; minWidth=
+[h: spellNum = json.get(macro.args, 0)]
+[h: rowCount = getTablePicksLeft("issSpellStates")]
+
+[h, if(spellNum <= rowCount), CODE:
+{
+	[tblRecord = getTableEntry("issSpellStates", spellNum)]
+	[spellData = json.get(tblRecord, "value")]	
+	[returnData = json.get(spellData, "Name" )]
+};
+{
+	[returnData = -1]
+}]
+
+[h: macro.return = returnData]
+
+!!
+@@ @getSpellNumByName
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=Returns the spell record number from the database table for the name of the spell passed in. ; minWidth=
+[h: spellCount = 1]
+[h: stopSearch = 0]
+
+[h: spellName = json.get(macro.args, 0)]
+[h: rowCount = getTablePicksLeft("issSpellStates")]
+
+[h, while(stopSearch == 0 && spellCount <= rowCount), CODE:
+{
+	[tblRecord = getTableEntry("issSpellStates", spellCount)]
+	[spellAll = json.get(tblRecord, "value")]
+	[spellNameFound = json.get(spellAll, "Name")]
+	[if(spellName == spellNameFound), CODE:
+	{
+		[spellNumFound = spellCount]
+		[stopSearch = 1]
+	};{}]
+	[spellCount = spellCount + 1]
+}]
+
+[h, if(stopSearch == 0), CODE:
+{
+	[returnData = -1]
+};
+{
+	[returnData = spellNumFound]
+}]
+
+[h: macro.return = returnData]
+
+!!
+@@ @getTokenEffectsList
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+Returns a list of Buff or Debuff effects on a token based upon buff/debuff parameters.<br>
+<br>
+<b>Parameters:</b>
+<ul>
+<li>(0) - id - Token ID to get States From</li>
+<li>(1) - sBuff(1/0) - Whether or not the spell is a buff spell.</li>
+<li>(2) - sDebuff(1/0) - Whether or not the spell is a debuff spell.</li>
+</ul>
+<b>Returns:</b>
+<ul>
+<li>stateList - Returns the current List of Effects in either the spellBuffs or spellDebuffs property on a token depending upon the sBuff/sDebuff mark.</li>
+</ul>
+</html> ; minWidth=
+[h: '<!-- Get Incoming Parameters -->']
+[h: effectsParms = macro.args]
+[h: id = json.get(effectsParms, 0)]
+[h: sBuff = json.get(effectsParms, 1)]
+[h: sDebuff = json.get(effectsParms, 2)]
+
+[h: '<!-- Switch to the Correct Token -->']
+[switchToken(id)]
+
+[h, if(sBuff == 1), CODE:
+{ [stateList = getProperty("spellBuffs")] };{}]
+[h, if(sDebuff == 1), CODE:
+{ [stateList = getProperty("spellDebuffs")] };{}]
+
+[h: macro.return = stateList]
+
+!!
+@@ @refreshTokenEffectCounter
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+Refreshes the duration counter for the spell passed to the macro to the starting duration<br>
+as noted on the incoming spell.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - ID - The ID of the Token for which to refresh the spell.</li>
+<li>(1) - SpellNum - The Number of the Spell to Refresh</li>
+<li>(2) - refSpellDur(1/0) - Whether or not to Refresh the Duration (1 = Yes, 0 = No)</li>
+</ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+</html> ; minWidth=
+[h:'<!-- processForm -->']
+[h: refreshEffectParams = macro.args]
+[h: id = json.get(refreshEffectParams, 0)]
+[h: spellNum = json.get(refreshEffectParams, 1)]
+
+[macro("getSpellByNum@Lib:issSpellStates", spellNum]
+[h: spellRecord = macro.return]
+
+[h: spellAll = json.get(spellRecord, spellNum)]
+[h: sBuff = json.get(spellAll, "Buff")]
+[h: sDebuff = json.get(spellAll, "Debuff")]
+[h: effectCount = json.get(spellAll, "EffectCount")]
+[h: spellName = json.get(spellAll, "Name")]
+
+[h: <!-- Get Effect List by Buff/Debuff -->]
+[switchToken(id)]
+[h, if(sBuff == 1), CODE: { [effectList = getProperty("spellBuffs")] };{}]
+[h, if(sDebuff == 1), CODE: { [effectList = getProperty("spellDebuffs")] };{}]
+
+[h: <!-- Find the Effect in the JSON, Update its Effect Counter to "effectCount" -->]
+[h: newEffectList = json.set(effectList, spellNum, effectCount)]
+[h, if(sBuff == 1), CODE: { [setProperty("spellBuffs", newEffectList)] };{}]
+[h, if(sDebuff == 1), CODE: { [setProperty("spellDebuffs", newEffectList)] };{}]
+
+[r: spellName]&#39;s duration has been refreshed on [token.name].
+
+!!
+@@ @removeTokenEffect
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+Removes the Passed in Spell Effect from the Token.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - ID - The ID of the Token to which to apply the effect.</li>
+<li>(1) - SpellNum - The Number of the Spell to apply to the token.</li>
+</ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+</html> ; minWidth=
+[h: effectList = ""]
+[h: effRemoved = 0]
+
+[h: removeEffectParams = macro.args]
+[h: id = json.get(removeEffectParams, 0)]
+[h: spellNum = json.get(removeEffectParams, 1)]
+[h: remCStates = json.get(removeEffectParams, 2)]
+
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+[h: spellRecord = macro.return]
+
+[h: spellAll = json.get(spellRecord, spellNum)]
+[h: sBuff = json.get(spellAll, "Buff")]
+[h: sDebuff = json.get(spellAll, "Debuff")]
+[h: effectCount = json.get(spellAll, "EffectCount")]
+[h: spellName = json.get(spellAll, "Name")]
+[h: stateList = json.get(spellAll, "State")]
+
+[h: switchToken(id)]
+[h, if(sBuff == 1), CODE:
+{ [effectList = getProperty("spellBuffs")] };{}]
+[h, if(sDebuff == 1), CODE:
+{ [effectList = getProperty("spellDebuffs")] };{}]
+
+[r, if(json.contains(effectList, spellNum)), CODE:
+{ 
+	[h: newEffectList = json.remove(effectList, spellNum)]
+	[h, if(sBuff == 1), CODE: { [setProperty("spellBuffs", newEffectList)] };{}]
+	[h, if(sDebuff == 1), CODE: { [setProperty("spellDebuffs", newEffectList)] };{}]
+	[h: effRemoved = 1]
+};{}]
+
+[h, if(remCStates == 1 && effRemoved == 1), CODE:
+{ 
+	[h, foreach(state, stateList), CODE: 
+	{ 
+		[setState(state, 0)]
+	}] 
+};{}]
+
+!!
+@@ @apiTest_AddEffect
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=5 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
+[h: spellName = "Bless"]
+[r, macro("addEffectToToken@Lib:issSpellStates"): spellName]
+
+!!
+@@ @apiTest_ClearEffects
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
+[r, macro("clearEffectsFromToken@Lib:issSpellStates"): "none"]
+
+!!
+@@ @apiTest_DecrementCounter
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
+[r, macro("decrementSpellDuration@Lib:issSpellStates"): "none"]
+
+!!
+@@ @apiTest_GetEffects
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
+[r, macro("getEffectsOnToken@Lib:issSpellStates"): "none"]
+[h: retJson = macro.return]
+
+<pre>
+Output JSON: 
+[r: json.indent(retJson, 2)]
+</pre>
+
+!!
+@@ @apiTest_IsEffectOnToken
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=5 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
+[h: spellName = "Bless"]
+[r, macro("isEffectOnToken@Lib:issSpellStates"): spellName]
+[h: retVal = macro.return]
+
+[r, if(retVal == 1), CODE: { [r: spellName] is applied to Token. };{}]
+[r, if(retVal == 0), CODE: { [r: spellName] is NOT applied to Token. };{}]
+[r, if(retVal == 2), CODE: { Too Many Tokens Selected, Select 1 Token Only. };{}]
+
+!!
+@@ @apiTest_RemoveEffect
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
+[h: spellName = "Bless"]
+[r, macro("removeEffectFromToken@Lib:issSpellStates"): spellName]
+
+!!
+@@ @applySpellEffect
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html>
+Adds or Removes the passed in spell effects from the tokens selected.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - SpellNum - The Spell ID of the Spell to apply to the token.</li>
+<li>(1) - SpellName - The Name of the Spell to apply to the token.</li>
+<li>(2) - refSpellDur - Config Option, Whether or not to refresh spell effect duration<br>
+or remove spell from token if applied a second time.</li>
+<li>(3) - appCStates - Config Option, Whether or not to apply campaign states that are<br>
+set by the spell effect.  e.g. Whether or not to set Petrified when Stone to Flesh is<br>
+added.</li>
+<li>(4) - remCStates - Config Option, Whether or not to remove campaign states when<br>
+removing a spell effect.  e.g. Whether or not to remove Petrified when Stone to Flesh<br>
+is removed.</li>
+</ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+</html> ; minWidth=
+[h: message = ""]
+[h: effectList = ""]
+
+[h:'<!-- processForm -->']
+[h: applySpellFormData = macro.args]
+[h: jsonSpellProp = json.toStrProp(applySpellFormData)]
+[h: spellNum = indexKeyStrProp(jsonSpellProp, 0)]
+[h: spellName = json.get(applySpellFormData, spellNum)]
+[h: refSpellDur = json.get(applySpellFormData, "optRefSpellDur")]
+[h: appCStates = json.get(applySpellFormData, "optAddCStateOnApply")]
+[h: remCStates = json.get(applySpellFormData, "optRemCStateOnRemove")]
+
+[h: '<!-- Get Spell Information for Use -->']
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum ]
+[h: spellRecord = macro.return]
+[h: spellAll = json.get(spellRecord, spellNum)]
+[h: sBuff = json.get(spellAll, "Buff")]
+[h: sDebuff = json.get(spellAll, "Debuff")]
+[h: effectCount = json.get(spellAll, "EffectCount")]
+
+[h:'<!-- Get Buff/Debuff Properties -->']
+[h: ids = getSelected()]
+[r, foreach(id, ids), CODE:
+{
+	[h: switchToken(id)]
+	[h: effectsListParams = json.append("", id, sBuff, sDebuff)]
+	[macro("getTokenEffectsList@Lib:issSpellStates"): effectsListParams]
+	[h: effectList = macro.return]
+	[r, if(json.contains(effectList, spellNum) && refSpellDur == 0), CODE:
+	{
+		[h: remEffectParams = json.append("", id, spellNum, remCStates)]
+		[macro("removeTokenEffect@Lib:issSpellStates"): remEffectParams]
+		[r: spellName] has been removed from [token.name].
+	};
+	{
+		[h: addResetEffectParams = json.append("", id, spellNum, appCStates)]
+		[macro("addResetTokenEffect@Lib:issSpellStates"): addResetEffectParams]
+		[r: spellName] has been applied to [token.name]
+	}]
+}]
+
+[h: setLibProperty("optRefSpellDur", refSpellDur, "Lib:issSpellStates")]
+[h: setLibProperty("optAddCStateOnApply", appCStates, "Lib:issSpellStates")]
+[h: setLibProperty("optRemCStateOnRemove", remCStates, "Lib:issSpellStates")]
+[h, macro("openStatesMgt@Lib:issSpellStates"): "all"]
+
+!!
+@@ @openStatesMgt
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html>
+Opens/Displays a Dialog5 Form for the States Management System.<br>
+Passes control to statesMgtForm to actually draw the Management Form.<br>
+<br>
+<ul>
+<li>Parameters: <b>macro.args</b> (passthrough)</li>
+<li>Returns: None</li>
+<li>Inputs: None</li>
+<li>Properties: None</li>
+</ul></html> ; minWidth=
+[h:'<!-- createForm -->']
+[h: link = macroLinkText("openStatesMgt@Lib:issSpellStates", macro.args)]
+
+[frame5("DM States Management", "width=530; height=440; temporary=1; scrollreset=1"): {
+<html>
+<head>
+    <title>Manage Spell States</title>
+	<link rel="onChangeSelection" type="macro" href="[r:link]">
+	<link rel="stylesheet" type="text/css" 
+		href="statesMgtFormCSS@Lib:issSpellStates"></link>
+</head>
+<body>
+	[r, macro("statesMgtForm@Lib:issSpellStates"): macro.args]
+</body>
+</html>
+}]
+
+!!
+@@ @statesMgtForm
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html>
+Creates the Actual States Management Form including all Data.<br>
+Displayed by openStatesMgt.<br>
+<br>
+<ul>
+<li>Parameters: <b>bene(1/0), deter(1/0), spellName, spellNum</b></li>
+<li>Returns: None</li>
+<li>Inputs: None</li>
+<li>Properties: None</li>
+</ul>
+HTML Form Calls / Macro Calls:<br><ul>
+<li>findToolboxSpell</li>
+<li>storeToolboxSpell</li>
+<li>removeToolboxSpell</li>
+<li>getToolboxSpellList</li>
+<li>clearToolbox</li>
+</ul>
+</html>
+ ; minWidth=
+[h: buttonCount = 0]
+[h: buttonHTML = ""]
+[h: buffHTML = ""]
+[h: debuffHTML = ""]
+[h: tokenName = ""]
+
+[h, macro("getToolboxSpellList@Lib:issSpellStates"): "all"]
+[h: tokenSpellList = macro.return]
+[h, foreach(Spell, tokenSpellList), CODE:
+{
+  [spellName = json.get(Spell, "SpellName")]
+  [spellName = replace(spellName, "'", "&#39;")]
+  [spellNumber = json.get(Spell, "SpellNumber")]
+  [sBuff = json.get(Spell, "sBuff")]
+  [sDebuff = json.get(Spell, "sDebuff")]
+  [buttonCount = buttonCount + 1]
+  [if(sBuff == 1), CODE:
+  {
+    [buttonHTML = buttonHTML + "<div>" + 
+      "<input class='spellButton sbGood' type='submit' name='" + spellNumber +
+      "' value='" + spellName + "'>&nbsp;</div>"]
+  };
+  {
+    [buttonHTML = buttonHTML + "<div>" + 
+      "<input class='spellButton sbBad' type='submit' name='" + spellNumber +
+      "' value='" + spellName + "'>&nbsp;</div>"]      	
+  }]
+}]
+
+[h: ids = getSelected("json")]
+[if(json.length(ids) == 1), CODE: 
+{
+	[h: id = json.get(ids, 0)]
+	[h: tokenName = getName(id)]
+	[h: buffEffListParams = json.append("", id, 1, 0)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): buffEffListParams]
+	[h: buffList = macro.return]
+	[h: debuffEffListParams = json.append("", id, 0, 1)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): debuffEffListParams]
+	[h: debuffList = macro.return]
+	[h, foreach(spellNum, buffList), CODE:
+	{
+		[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+		[h: spellRecord = macro.return]
+		[h: spellAll = json.get(spellRecord, spellNum)]
+		[h: spellName = json.get(spellAll, "Name")]
+		[h: buffDur = json.get(buffList, spellNum)]
+		[h: passedVars = json.set("{}", "spellName", spellName)]
+		[h: buffHTML = buffHTML + "<tr><td>" + macroLink(spellName + " (" + 
+		  buffDur + ")", "openSpellLookup@Lib:issSpellStates", "none", passedVars) + 
+		  "</td></tr>"]
+	}]
+	[h, foreach(spellNum, debuffList), CODE:
+	{
+		[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+		[h: spellRecord = macro.return]
+		[h: spellAll = json.get(spellRecord, spellNum)]
+		[h: spellName = json.get(spellAll, "Name")]
+		[h: debuffDur = json.get(debuffList, spellNum)]
+		[h: passedVars = json.set("{}", "spellName", spellName)]
+		[h: debuffHTML = debuffHTML + "<tr><td>" + macroLink(spellName + " (" + 
+			debuffDur + ")", "openSpellLookup@Lib:issSpellStates", "none", 
+			passedVars) + "</td></tr>"]
+	}]
+};{}]
+
+[h: optRefSpellDur = getLibProperty("optRefSpellDur", "Lib:issSpellStates")]
+[h: optAddCStateOnApply = getLibProperty("optAddCStateOnApply", 
+	"Lib:issSpellStates")]
+[h: optRemCStateOnRemove = getLibProperty("optRemCStateOnRemove", 
+	"Lib:issSpellStates")]
+
+[h: applySpellLink = macroLinkText("applySpellEffect@Lib:issSpellStates", "all")]
+[h: refTokenStatesList = macroLinkText("refTokenStatesList@Lib:issSpellStates", "all")]
+
+<!-- Display Buttons in Grid Format -->
+<h3>States in Toolbox</h3>
+<form action="[r:applySpellLink]" method="json">
+<div class="spellButtonFlex-container">
+  [r: buttonHTML]
+</div>
+<input type="hidden" name="optRefSpellDur" value="0">
+[r, if(optRefSpellDur == 1), CODE: 
+{ <input type="checkbox" name="optRefSpellDur" value="1" checked> };
+{ <input type="checkbox" name="optRefSpellDur" value="1"> }]
+  <div class="tooltip">Refresh Spell Duration
+    <span class="tooltiptext">If a Token already has a spell effect applied
+      to it, refresh that spell&#39;s effect duration to it&#39;s original 
+      duration.<br>
+      <br>
+      Without this checked a spell state that already exists on the token will be 
+      removed if re-applied.</span>
+  </div>
+  <br>
+<input type="hidden" name="optAddCStateOnApply" value="0">
+[r, if(optAddCStateOnApply == 1), CODE: 
+{ <input type="checkbox" name="optAddCStateOnApply" value="1" checked> };
+{ <input type="checkbox" name="optAddCStateOnApply" value="1"> }]
+  <div class="tooltip">Add Campaign States<br>when Applying Spells.
+    <span class="tooltiptext">If a spell effect sets a Campaign State (e.g. 
+      Flesh to Stone sets Petrified), if this box is checked, that state 
+      will be automatically<br>set on the selected token.<br>
+      <br>
+      Without this checked spells will only apply their spell effect, not the
+      corresponding campaign states as well.  Campaign States (such as petrified)
+      would need to be set manually.</span>
+  </div>
+  <br>
+<input type="hidden" name="optRemCStateOnRemove" value="0">
+[r, if(optRemCStateOnRemove == 1), CODE:
+{ <input type="checkbox" name="optRemCStateOnRemove" value="1" checked> };
+{ <input type="checkbox" name="optRemCStateOnRemove" value="1"> }]
+  <div class="tooltip">Remove Campaign States<br>when Removing Spells.
+    <span class="tooltiptext">If a spell effect sets a Campaign State (e.g. 
+      Flesh to Stone sets Petrified), if this box is checked, that state 
+      will be automatically<br>removed from the token when the spell is removed.<br>
+      <br>
+      Without this checked spells that set Campaign States (such as Flesh to 
+      Stone) will not remove those states (such as petrified) when the spell 
+      is removed.  These Campaign States would need to be removed manually.</span>
+  </div>
+</form>
+
+<!-- Display the Selected Token's Current States -->
+<h3 style="text-align:left">[r: tokenName] Current States</h3>
+<table  id="activeEffectsTable">
+  <tr><th>Buffs</th><th>Debuffs</th></tr>
+  <tr>
+    <td>
+      <table>[r: buffHTML]</table>
+    </td>
+    <td>
+      <table>[r: debuffHTML]</table>
+    </td>
+  </tr>
+</table>
+
+!!
+@@ @statesMgtFormCSS
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=CSS properties for the statesMgtForm ; minWidth=
+.spellButtonFlex-container {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	align-content: space-around;
+}
+
+#activeEffectsTable {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+#activeEffectsTable td, #activeEffectsTable th {
+	border: 0px solid #000;
+	padding: 1px;
+	vertical-align: top;
+}
+
+#activeEffectsTable th {
+	text-align: left;
+}
+
+.spellButton {
+    display: inline-block;
+	background-color: #e7e7e7;
+	color: black;
+	border: none;
+	text-align: center;
+	text-decoration: none;
+	font-size: 10px;
+	border-radius: 15px;
+	width: 85px;
+	cursor: pointer;
+}
+
+.sbGood {
+	border: 2px solid #4CAF50; /* Green */
+}
+
+.sbGood:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.sbGood:active {
+  background-color: #4CAF50;
+  transform: translateY(4px);
+}
+
+.sbBad {
+	border: 2px solid #f44336; /* Red */
+}
+
+.sbBad:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.sbBad:active {
+  background-color: #f44336;
+  transform: translateY(4px);
+}
+
+.sbUtil {
+	border: 2px solid #0000ff; /* Red */
+}
+
+.sbUtil:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.sbUtil:active {
+  background-color: #0000ff;
+  color: white;
+  transform: translateY(4px);
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: black;
+  color: #fff;
+  text-align: left;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -100px;
+  font-size: 10px;
+}
+
+.tooltip .tooltiptext::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: black transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+!!
+@@ @clearToolbox
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+Remove all Spells Stored in the Toolbox.<br>
+<br>
+<ul>
+<li>Parameters: None</li>
+<li>Returns: <b>buff, debuff, spellNameBack, spellNumBack</b></li>
+<li>Inputs: None</li>
+<li>Properties: Lib Property: <b>SpellList</b></li>
+</ul></html>
+ ; minWidth=
+[h: inputList = ""]
+[h: sBuff = ""]
+[h: sDebuff = ""]
+[h: spellNumBack = 0]
+[h: spellNameBack = "No Spell Found"]
+[h: message = ""]
+
+[h: toolboxList = getLibProperty("SpellList", "Lib:issSpellStates")]
+[h, foreach(spellNum, toolboxList), CODE:
+{
+	[tblRecord = getTableEntry("issSpellStates", spellNum)]
+	[SpellAll = json.get(tblRecord, "value")]
+	[SpellName = json.get(SpellAll, "Name")]
+	[inputList = inputList + "## "+ SpellName + "|"+spellNum+"|"+SpellName+"|LABEL"]
+}]
+
+[h: vStatus = input(
+	"junkVar|SpellNum|The following Spells are in the Toolbox:|LABEL"
+	+ inputList + 
+	"## confirm|0|Are you Sure you Wish to Clear the Toolbox?|CHECK")]
+[h: abort(vStatus)]
+
+[if(confirm == 1), CODE: {
+	[h: setLibProperty("SpellList", "")]
+	[h: message = "<b>DMs Spell States Toolbox has been Cleared of Spells.</b>"]	
+};{}]
+
+[r: message]
+
+[h: passedVars = json.append( "", sBuff, sDebuff, spellNameBack, spellNumBack )]
+[h, macro("openStatesToolbox@Lib:issSpellStates"): passedVars]
+
+!!
+@@ @findToolboxSpell
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>Find Spell in Table by Name, Return Name, Number, and Beneficia/Determental Mark<br>
+<br>
+<ul>
+<li>Parameters: <b>spellName</b></li>
+<li>Returns: <b>sBuff(1/0), sDebuff(1/0), spellNameFound, spellNumFound</b></li>
+<li>Inputs: None</li>
+<li>Properties: None</li>
+</ul></html>
+ ; minWidth=
+[h:'<!-- processForm -->']
+[h: findSpellFormData = macro.args]
+[h: spellNameToSearch = json.get(findSpellFormData, "spellName")]
+
+[h, macro("getSpellByName@Lib:issSpellStates"): spellNameToSearch]
+[h: spellData = macro.return]
+[h: testFail = json.get(spellData, "-1")]
+[h, if(testFail != -1), CODE:
+{
+	[spellAll = json.get(spellData, spellNameToSearch)]
+	[sBuff = json.get(spellAll, "Buff")]
+	[sDebuff = json.get(SpellAll, "Debuff")] 
+	[spellNameFound = json.get(SpellAll, "Name")]
+	[macro("getSpellNumByName@Lib:issSpellStates"): spellNameToSearch]
+	[spellNumFound = macro.return]
+};
+{
+	[sBuff = 0]
+	[sDebuff = 0]
+	[spellNameFound = "No Spell Found"]
+	[spellNumFound = -1]
+}]
+
+[h: passedVars = json.append( "", sBuff, sDebuff, spellNameFound, spellNumFound )]
+[h, macro("openStatesToolbox@Lib:issSpellStates"): passedVars]
+
+!!
+@@ @getToolboxSpellList
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+Return JSON Object of all Spells Stored on SpellList Property of Toolbox.<br>
+<br>
+<ul>
+<li>Parameters: None</li>
+<li>Returns: <b>spellName, spellNum, sBuff(1/0), sDebuff(1/0)</b></li>
+<li>Inputs: None</li>
+<li>Properties: Lib Property: <b>SpellList</b></li>
+</ul></html> ; minWidth=
+[h: retSpellJson = ""]
+[h:'<!-- Get Buff/Debuff Properties -->']
+[h: toolboxList = getLibProperty("SpellList", "Lib:issSpellStates")]
+
+[h, foreach(spellNum, toolboxList), CODE:
+{
+	[tblRecord = getTableEntry("issSpellStates", spellNum)]
+	[spellAll = json.get(tblRecord, "value")]
+	[spellName = json.get(spellAll, "Name")]
+	[sBuff = json.get(spellAll, "Buff")]
+	[sDebuff = json.get(spellAll, "Debuff")]
+	[retSpellJson = json.append(retSpellJson, json.set("{}", "SpellName", spellName, "SpellNumber", spellNum, "sBuff", sBuff, "sDebuff", sDebuff))]
+}]
+
+[h: macro.return = retSpellJson]
+
+!!
+@@ @openStatesToolbox
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+Opens/Displays a Dialog5 Form for the DM States Toolbox.<br>
+Passes control to statesToolboxForm to actually draw the toolbox form.<br>
+<br>
+<ul>
+<li>Parameters: <b>macro.args</b> (passthrough)</li>
+<li>Returns: None</li>
+<li>Inputs: None</li>
+<li>Properties: None</li>
+</ul></html> ; minWidth=
+[h:'<!-- createForm -->']
+[h: link = macroLinkText("openStatesToolbox@Lib:issSpellStates", macro.args)]
+
+[dialog5("DM States ToolBox", "width=530; height=440; scrollreset=1"): {
+<html>
+<head>
+    <title>DM Toolbox of States</title>
+	<link rel="onChangeSelection" type="macro" href="[r:link]">
+	<link rel="stylesheet" type="text/css" href= 
+		"statesToolboxFormCSS@Lib:issSpellStates"></link>
+</head>
+<body>
+	[r, macro("statesToolboxForm@Lib:issSpellStates"): macro.args]
+</body>
+</html>
+}]
+
+!!
+@@ @removeToolboxSpell
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+Remove a Selected Spell Stored in the Toolbox.<br>
+<br>
+<ul>
+<li>Parameters: <b>spellNum, spellName</b></li>
+<li>Returns: <b>sBuff(0), sDebuff(0), spellName(No Spell Found), 
+	spellNum(0)</b></li>
+<li>Inputs: None</li>
+<li>Properties: Lib Property: <b>SpellList</b></li>
+</ul></html> ; minWidth=
+[h: message = ""]
+
+[h:'<!-- processForm -->']
+[h: remSpellFormData = macro.args]
+[h: jsonSpellProp = json.toStrProp(remSpellFormData)]
+[h: spellNum = indexKeyStrProp(jsonSpellProp, 0)]
+[h: spellName = indexValueStrProp(jsonSpellProp, 0)]
+
+[h:'<!-- Get Buff/Debuff Properties -->']
+[h: toolboxList = getLibProperty("SpellList", "Lib:issSpellStates")]
+
+[h, if(json.indexOf(toolboxList, spellNum) >= 0), CODE:
+{
+	[listIndex = json.indexOf(toolboxList, spellNum)]
+	[toolboxList = json.remove(toolboxList, listIndex)]
+	[setLibProperty("SpellList", toolboxList, "Lib:issSpellStates")]
+	[message = "<b>" + spellName + "(" + 
+		spellNum + ")</b>: was removed from the Toolbox!<br>"]
+};
+{
+	[message = "<b>" + spellName + "(" + spellNum + "): Not Found In Toolbox!"]	
+}]
+
+[r: message]
+
+[h: passedVars = json.append( "", "0", "0", "No Spell Found", -1 )]
+[h, macro("openStatesToolbox@Lib:issSpellStates"): passedVars]
+
+!!
+@@ @statesToolboxForm
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+Creates the Actual DM States Toolbox Form including all Data.<br>
+Displayed by openStatesToolbox.<br>
+<br>
+<ul>
+<li>Parameters: <b>bene(1/0), deter(1/0), spellName, spellNum</b></li>
+<li>Returns: None</li>
+<li>Inputs: None</li>
+<li>Properties: None</li>
+</ul>
+HTML Form Calls / Macro Calls:<br><ul>
+<li>findToolboxSpell</li>
+<li>storeToolboxSpell</li>
+<li>removeToolboxSpell</li>
+<li>getToolboxSpellList</li>
+<li>clearToolbox</li>
+</ul>
+</html>
+ ; minWidth=
+[h: tokenSpellList = ""]
+
+[h:'<!-- processForm -->']
+[h: findSpellFormData = macro.args]
+[h: sBuff = json.get(findSpellFormData, 0)]
+[h: sDebuff = json.get(findSpellFormData, 1)]
+[h: spellName = json.get(findSpellFormData, 2)]
+[h: spellNum = json.get(findSpellFormData, 3)]
+
+[h, if(sBuff == 1), CODE:
+{[buffImage = "<img src='"+ getImage("image:GreenBubbleCheck") + "' alt='Y' style='width:25px;height:25px;'></img>"] };
+{[buffImage = "<img src='"+ getImage("image:RedBubbleX") + "' alt='N' style='width:25px;height:25px;'></img>"] }]
+[h, if(sDebuff == 1), CODE:
+{[debuffImage = "<img src='"+ getImage("image:GreenBubbleCheck") + "' alt='Y' style='width:25px;height:25px;'></img>"] };
+{[debuffImage = "<img src='"+ getImage("image:RedBubbleX") + "' alt='N' style='width:25px;height:25px;'></img>"] }]
+
+[h: findSpellLink = macroLinkText("findToolboxSpell@Lib:issSpellStates", "all")]
+[h: storeSpellLink = macroLinkText("storeToolboxSpell@Lib:issSpellStates", "all")]
+[h: removeSpellLink = macroLinkText("removeToolboxSpell@Lib:issSpellStates", "all")]
+
+    <form action="[r:findSpellLink]" method="json">
+    <table style="width:490px">
+      <tr>
+        <th style="text-align:left" colspan="3">
+          <u>Search Spells and Add Effects to Toolbox</u>
+        </th>
+      </tr>
+      <tr>
+        <td width="37%" style="text-align:right">
+          <input type="text" name="spellName"></td>
+        <td width="20%"><input type="submit" name="searchBtn" value="Search"></td>
+        <td width="43%">&nbsp</td>
+      </tr>
+    </table>
+	</form>
+
+    <form action="[r:storeSpellLink]" method="json">
+    <table style="width:490px">
+      <tr>
+        <td width="5%" style="text-align:center"><u>Add</u></td>
+        <td width="55%" style="text-align:left"><u>Spell Name</u></td>
+        <td width="15%" style="text-align:center"><u>Buff</u></td>
+        <td width="15%" style="text-align:center"><u>Debuff</u></td>
+        <td width="5%">&nbsp</td>
+      </tr>
+      <tr>
+        [if(spellNum == 0), CODE: {
+        	<td width="5%" style="text-align:center">&nbsp</td>
+        	<td width="55%" style="text-align:left">[r: spellName]</td>
+        	<td width="15%" style="text-align:center">&nbsp</td>
+        	<td width="15%" style="text-align:center">&nbsp</td>
+        	<td width="5%">&nbsp</td>
+        };{}]
+        [if(spellNum == -1), CODE: {
+        	<td width="5%" style="text-align:center">&nbsp</td>
+        	<td width="55%" style="text-align:left">[r: spellName]</td>
+        	<td width="15%" style="text-align:center">&nbsp</td>
+        	<td width="15%" style="text-align:center">&nbsp</td>
+        	<td width="5%">&nbsp</td>
+        };{}]
+        [if(spellNum != 0 && spellNum != -1 && (sBuff == 1 || sDebuff == 1)), CODE:
+        {
+        	<td width="5%" style="text-align:center">
+        	  <input type="submit" name="addBtn" value="+"></td>
+        	<td width="55%" style="text-align:left">[r: spellName]</td>
+        	<td width="15%" style="text-align:center">[r: buffImage]</td>
+        	<td width="15%" style="text-align:center">[r: debuffImage]</td>
+        	<td width="5%">
+        	  <input type="hidden" name="spellNum" value="[r:spellNum]">
+        	  <input type="hidden" name="spellName" value="[r:spellName]">
+        	  <input type="hidden" name="sBuff" value="[r:sBuff]">
+        	  <input type="hidden" name="sDebuff" value="[r:sDebuff]">        	  
+        	</td>
+        };{}]
+        [if(spellNum != 0 && spellNum != -1 && sBuff == 0 && sDebuff == 0), CODE:
+        {
+        	<td width="5%" style="text-align:center">&nbsp</td>
+        	<td width="55%" style="text-align:left">[r: spellName]</td>
+        	<td width="15%" style="text-align:center">[r: buffImage]</td>
+        	<td width="15%" style="text-align:center">[r: debuffImage]</td>
+        	<td width="5%">&nbsp</td>
+        };{}]
+      </tr>
+    </table>
+    </form>
+    
+	<br>
+    <div style="width:490px"><hr></div>
+    <br>
+
+	[h, macro("getToolboxSpellList@Lib:issSpellStates"): "all"]
+	[h: tokenSpellList = macro.return]
+    [h: buttonCount = 0]
+    [h: buttonHTML = ""]
+    [h, foreach(Spell, tokenSpellList), CODE:
+    {
+      [spellName = json.get(Spell, "SpellName")]
+      [spellName = replace(spellName, "'", "&#39;")]
+	  [spellNum = json.get(Spell, "SpellNumber")]
+	  [sBuff = json.get(Spell, "sBuff")]
+	  [sDebuff = json.get(Spell, "sDebuff")]
+      [buttonCount = buttonCount + 1]
+      [if(sBuff == 1), CODE:
+      {
+	    [buttonHTML = buttonHTML + "<td width='20%' style='text-align:center'>" + 
+          "<input class='spellButton sbGood' type='submit' name='" + spellNum +
+          "' value='" + spellName + "'></td>"]
+      };
+      {
+	    [buttonHTML = buttonHTML + "<td width='20%' style='text-align:center'>" + 
+          "<input class='spellButton sbBad' type='submit' name='" + spellNum +
+          "' value='" + spellName + "'></td>"]      	
+      }]
+      [if(math.mod(buttonCount, 5) == 0), CODE:
+      {
+      	[buttonHTML = buttonHTML + "</tr><tr>"]
+      };{}]
+    }]
+    <form action="[r:removeSpellLink]" method="json">
+    <table style="width:490px">
+	  <tr>
+	    <th style="text-align:left" colspan="5">
+	      <h3>States in Toolbox</h3>
+	    </th>
+	  </tr>
+	    [r: buttonHTML]
+	  <tr>
+	  </tr>
+    </table>
+    </form>
+    <br><br>
+    [macroLink("Clear Toolbox", "clearToolbox@Lib:issSpellStates")]
+
+!!
+@@ @statesToolboxFormCSS
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=CSS properties for the statesToolboxForm ; minWidth=
+table, tr, td {
+  border:0px solid black;
+}
+
+.spellButton {
+    display: inline-block;
+	background-color: #e7e7e7;
+	color: black;
+	border: none;
+	text-align: center;
+	text-decoration: none;
+	font-size: 10px;
+	border-radius: 15px;
+	width: 85px;
+	cursor: pointer;
+}
+
+.sbGood {
+	border: 2px solid #4CAF50; /* Green */
+}
+
+.sbGood:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.sbGood:active {
+  background-color: #4CAF50;
+  transform: translateY(4px);
+}
+
+.sbBad {
+	border: 2px solid #f44336; /* Red */
+}
+
+.sbBad:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.sbBad:active {
+  background-color: #f44336;
+  transform: translateY(4px);
+}
+
+!!
+@@ @storeToolboxSpell
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+Stores a Spell to the Toolbox.  Takes a Number and Name, stores number.<br>
+<br>
+<ul>
+<li>Parameters: <b>spellNum, spellName</b></li>
+<li>Returns: <b>sBuff(1/0), sDebuff(1/0), spellName, spellNum</b></li>
+<li>Inputs: None</li>
+<li>Properties: Lib Property: <b>SpellList</b></li>
+</ul></html> ; minWidth=
+[h: message = ""]
+
+[h:'<!-- processForm -->']
+[h: storeSpellFormData = macro.args]
+[h: spellNum = json.get(storeSpellFormData, "spellNum")]
+[h: spellName = json.get(storeSpellFormData, "spellName")]
+[h: sBuff = json.get(storeSpellFormData, "sBuff")]
+[h: sDebuff = json.get(storeSpellFormData, "sDebuff")]
+
+[h:'<!-- Get Buff/Debuff Properties -->']
+[h: toolboxList = getLibProperty("SpellList", "Lib:issSpellStates")]
+
+[h, if(json.indexOf(toolboxList, spellNum) >= 0), CODE:
+{
+	[message = "<b>" + spellName + "(" + spellNum + "): Already In Toolbox!"]
+};
+{
+	[toolboxList = json.append(toolboxList, spellNum)]
+	[toolboxList = json.sort(toolboxList)]
+	[setLibProperty("SpellList", toolboxList)]
+	[message = "<b>" + spellName + "(" + 
+		spellNum + ")</b>: was added to the Toolbox!<br>"]
+}]
+
+[r: message]
+
+[h: passedVars = json.append( "", sBuff, sDebuff, spellName, spellNum )]
+[h, macro("openStatesToolbox@lib:issSpellStates"): passedVars]
+
+!!
+@@ @output
+@PROPS@ fontColor=yellow ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=blue ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-Core ; tooltip= ; minWidth=94
+<!-- output(chatText,targets,token): output to chat
+	NOTE: Because of the new way isGM works, this only works in B91.
+	
+   chatText - html text you want displayed to chat
+   targets - (default to all) A list or json of player names and/or groups who will see chatText.
+      * all - all players (keywords are case sensitive) 
+      * owner - anyone who owns the token. token must be valid and on current map
+      * other - anyone who doesn't own token. token must be valid and on current map
+      * gm - only gm players
+      * -gm - anyone but the gm
+      * self - only displayed to self
+      * -self - display to all other players
+      (Note: when posting multiple versions of the same output, using owner and other is most common)
+   token - (default is currentToken) Specify owned token to post as. If currentToken is valid, but "" is passed, then chatText
+      is posted as the player.
+
+Example Call:
+   output(ownerChatText,"owner")
+
+   This function will post html text in a similar fashion as the normal output but the players name appears as a tooltip to the 
+	   impersonated token. By default, onCampaignLoad functions block all output and this function will post output to chat.
+-->
+
+[H: chatText = arg(0)]
+[H, if(argCount() >= 2): targets = arg(1); targets = "all"]
+[H, if(argCount() >= 3): token = arg(2); token = currentToken()]
+
+<!-- validate token is on current map -->
+[H: tokenId = findToken(token)]
+[H, if(! json.isEmpty(tokenId)), code: {
+   [H: switchToken(tokenId)]
+   [H: tokenName = getName()]
+   [H: tokenImage = getTokenImage()]
+};{}]
+
+<!-- parse list of targets in to list of players names -->
+[H, if(json.type(targets) == "UNKNOWN"): targets = json.fromList(targets)]
+
+<!-- get player groups -->
+[H: players.all = getAllPlayerNames("json")]
+[H: players.gm = "[]"]
+[H, foreach(player,players.all), if(isGM(player)): players.gm = json.append(players.gm,player)]
+[H: players.self = json.append("",getPlayerName())]
+[H, if(json.isEmpty(tokenId)), code: {
+	[H: players.owner = json.union(players.gm,players.self)]
+	[H: players.other = json.difference(players.all,players.owner)]
+};{
+	[H, if(isOwnedByAll(tokenId)), code: {
+		[H: players.owner = players.all]
+		[H: players.other = "[]"]
+	};{
+		[H: players.owner = getOwners("json",tokenId)]
+		[H: players.other = json.difference(players.all,players.owner)]
+	}]
+}]
+
+<!-- get player names based on groups -->
+[H: targetNames = "[]"]
+[H, if(json.isEmpty(targets)), code: {
+	[H: targetNames = players.all]
+};{
+	[H, if(json.contains(targets,"all")): targetNames = json.union(targetNames,players.all)]
+	[H, if(json.contains(targets,"gm")): targetNames = json.union(targetNames,players.gm)]
+	[H, if(json.contains(targets,"self")): targetNames = json.union(targetNames,players.self)]
+	[H, if(json.contains(targets,"owner")): targetNames = json.union(targetNames,players.owner)]
+	[H, if(json.contains(targets,"other")): targetNames = json.union(targetNames,players.other)]
+	[H, if(json.contains(targets,"-gm")): targetNames = json.difference(targetNames,players.gm)]
+	[H, if(json.contains(targets,"-self")): targetNames = json.difference(targetNames,player.self)]
+	[H: targets = json.difference(targets,json.append("","all","gm","self","owner","other","-gm","-self"))]
+	[H, if(! json.isEmpty(targets)): targetNames = json.intersection(players.all,json.union(targetNames,targets))]
+}]
+
+<!-- if original targets parameter is blank then output is to all, but if blank after getting groups, then no output -->
+[H, if(! json.isEmpty(chatText) && ! json.isEmpty(targetNames)), code: {
+   [H: playerName = replace(getPlayerName(),'"',"&quot;")]
+   [H, if(json.isEmpty(tokenId)), code: {
+      [H: output = strformat('
+         <table cellpadding="0">
+            <tr>
+               <td style="margin-right: 5px;font-weight:700;" valign="top">%{playerName}:</td>
+               <td valign="top"><span>%{chatText}</span></td>
+            </tr>
+         </table>')]
+   };{
+      [H: output = strformat('
+         <table cellpadding="0">
+            <tr>
+               <td width="40" style="padding-right: 5px" valign="top"><img src="%{tokenImage}-40" alt="%{playerName}" /></td>
+               <td style="margin-right: 5px;font-weight:700;" valign="top">%{tokenName}:</td>
+               <td valign="top"><span>%{chatText}</span></td>
+            </tr>
+         </table>')]
+   }]
+   [H: broadcast(output,targetNames,"json")]
+};{}]
+
+!!
+@@ @openSpellLookup
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell Lookup ; tooltip=<html>
+Opens the Spell Lookup Information Window.<br>
+Passes control to spellLookupForm to generate the HTML for the Spell Lookup.<br>
+<br>
+<ul>
+<li>Parameters: <b>macro.args</b> (passthrough)</li>
+<li>Returns: None</li>
+<li>Inputs: None</li>
+<li>Properties: None</li>
+</ul></html> ; minWidth=
+[h:'<!-- createForm -->']
+[h: link = macroLinkText("openSpellLookup@Lib:issSpellStates", macro.args)]
+
+[frame5("Spell Information"): {
+<html>
+<head>
+    <title>Spell Information</title>
+	<link rel="onChangeSelection" type="macro" href="[r:link]">
+	<link rel="stylesheet" type="text/css" href=
+		"spellLookupFormCSS@Lib:issSpellStates"></link>
+</head>
+<body>
+	[r, macro("spellLookupForm@Lib:issSpellStates"): macro.args]
+</body>
+</html>
+}]
+
+!!
+@@ @spellLookupForm
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell Lookup ; tooltip=<html>Prompt User for Spell to Look Up and Open the Spell Info Dialog.<br>
+<br>
+Provides Main Routine for Spell Lookup Functionality.<br>
+<ul>
+<li>Parameters: <b>spellName</b></li>
+<li>Returns: None</li>
+<li>Input: None</li>
+</ul>
+Acknowledgements:<br>
+<ul>
+<li>KellENDER</li>
+<li>Jason_c_o</li>
+<li>Illydth</li>
+</ul></html>
+ ; minWidth=
+[h: findSpellFormData = macro.args]
+[h: spellNameToSearch = json.get(findSpellFormData, "spellName")]
+
+[h, macro("getSpellByName@Lib:issSpellStates"): spellNameToSearch]
+[h: spellData = macro.return]
+[h: testFail = json.get(spellData, "-1")]
+[h, if(testFail != -1), CODE:
+{
+	[h: spellAll = json.get(spellData, spellNameToSearch)]
+	[h: spellName = json.get(spellAll, "Name")]
+	[h: spellSrc = json.get(spellAll, "Source")]
+	[h: spellLevel = json.get(spellAll, "Level")]
+	[h: spellCT = json.get(spellAll, "Casting Time")]
+	[h: spellDur = json.get(spellAll, "Duration")]
+	[h: spellSch = json.get(spellAll, "School")]
+	[h: spellRange = json.get(spellAll, "Range")]
+	[h: spellComp = json.get(spellAll, "Components")]
+	[h: spellClass = json.get(spellAll, "Classes")]
+	[h: spellTxt = json.get(spellAll, "Text")]
+	[h: spellAHL = json.get(spellAll, "At Higher Levels")]
+};
+{
+    [h: spellName = "Spell Search Failed - <b>Spell Not Found!</b>"]
+	[h: spellSrc = ""]
+	[h: spellLevel = ""]
+	[h: spellCT = ""]
+	[h: spellDur = ""]
+	[h: spellSch = ""]
+	[h: spellRange = ""]
+	[h: spellComp = ""]
+	[h: spellClass = ""]
+	[h: spellTxt = ""]
+	[h: spellAHL = ""]    	
+}]
+[h: findSpellLink = macroLinkText("openSpellLookup@Lib:issSpellStates", "all")]
+
+<html>
+<head>
+  <title>Spell Information</title>
+</head>
+<body>
+<form action="[r:findSpellLink]" method="json">
+<table>
+  <tr>
+    <th style="text-align:left" colspan="3">
+      <u>Search Spells:</u>
+    </th>
+  </tr>
+  <tr>
+    <td width="37%" style="text-align:right">
+      <input type="text" name="spellName"></td>
+    <td width="20%"><input type="submit" name="searchBtn" value="Search"></td>
+    <td width="43%">&nbsp</td>
+  </tr>
+</table>
+</form> 
+<table>
+ <tr><td class="SpellName">[r: spellName]</td></tr>
+ <tr><td class="SpellLevel">[r: spellLevel]-level [r: spellSch] ([r: spellClass])</td>
+ 	</tr>
+ <tr><td class="SpellBase"><b>Casting Time:</b> 1 [r: spellCT]</td></tr>
+ <tr><td class="SpellBase"><b>Range:</b> [r: spellRange]</td></tr>
+ <tr><td class="SpellBase"><b>Components:</b> [r: spellComp]</td></tr>
+ <tr><td class="SpellBase"><b>Duration:</b> [r: spellDur]</td></tr>
+ <tr><td class="SpellBase"><b>Source:</b> [r: spellSrc]</td></tr>
+ <tr><td>&nbsp;</td></tr>
+ <tr><td class="SpellBase">[r: spellTxt]</td></tr>
+ <tr><td>&nbsp;</td></tr>
+ <tr><td class="SpellBase"><b>At Higher Levels:</b> [r: spellAHL]</td></tr>
+</table>
+</body>
+</html>
+
+!!
+@@ @spellLookupFormCSS
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell Lookup ; tooltip=CSS properties for the spellLookupForm ; minWidth=
+.SpellName {
+	color: #8a6932;
+	font-size: 20px;
+	text-align: left;
+	text-decoration: none;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+	font-variant: small-caps;
+}
+
+.SpellLevel {
+	color: black;
+	font-size: 12px;
+	font-style: italic;
+	text-align: left;
+	text-decoration: none;
+}
+
+.SpellBase {
+	color: black;
+	font-size: 14px;
+	text-align: left;
+	text-decoration: none;
+}
+
+!!
