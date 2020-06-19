@@ -1,0 +1,372 @@
+--------------------------------
+Using issSpellStates by Example
+--------------------------------
+This tutoral is intended to walk users of issSpellStates through the appropriate use of the Framework by using the framework
+to complete a set of tasks.  For those who best learn by doing, this should get you at least 90% of the way there.
+
+The document assumes the user is using the issSpellStates_Base campaign file to complete this tutorial.  No information is
+being provided for the setup or installation of issSpellStates or the configuration of an existing campaign to use the tool.  For
+that information, please see the README file and any corresponding documentation.
+
+All tasks below assume the user has downloaded the most recent copy of the issSpellStates distribution file and that their
+installation of MapTool meets the requirments in the "Requirements" section of the README.  Please unzip the distribution .zip
+file to a local directory before proceeding, and make sure you know where you've unzipped to and the basics of nagivating around
+your computer to get ahold of files.
+
+
+--- Initialization: ---
+
+Lets start by opening the campaign file and adding a test token to our Library Map to play with.
+* Open the issSpellStates_Base campaign file from the Zip and add a "PC Token" to the "Grasslands" map.
+* Open the "Window" menu and make sure "Selection, GM and Campaign" are open.
+* Click on "Lib:issSpellStates" in your Library map (the "Grasslands" Map).
+* Copy the "DM States Toolbox" macro to your GM Window by Dragging the button from the Selection Window to the GM Window.
+* Copy the "Lookup Spell Info" macro to your Campaign Window by dragging the button from the Selection Window to the Campaign Window
+* Copy the "States Management Form" macro to your GM Window.
+* Copy the "Get Token Effects" macro to your Campaign Window.
+
+During the example, I will use "Lbrary Token" to mean the "Lib:issSpellStates" token and "PC Token"
+to designate the token representing our NPC or PC we will be applying states to.  We are assuming the use of 
+issSpellStates for D&D 5th Edition and that all States exist as the issSpellStates_Base campaign file would 
+have them.  If you are adding this to your own campaign, please make sure that states are setup properly.
+
+--- Looking Up Spell Information ---
+This is a quick and dirty spellbook style lookup for D&D 5e Spells.  This will be used more later when we use links 
+to spell effects set on our tokens to look up spells that are affecting us, but for now, this can be used as a very 
+quick and efficient way of looking up spells.
+
+* Click the "Lookup Spell Info" button on the Campaign Window.
+* In the Box next to the "search" button, type "Fireball" and click Search or hit Enter.
+
+You'll see the fireball spell come up with it's information, text and spell stat block.  Use this for an easy/quick
+reference to spells in 5th edition!
+
+* Type "Fireba" into the box and click Search or hit Enter.
+
+You'll note that the box returns "No Spell Found".  Searches must be made using the full spell name for it to find
+the spell.
+
+Ok, that was easy.  It is worth docking this window somewhere on your interface for use later.  A "vertical" format
+I find works best, we can eventually stack with this our States management form along one side of the screen for ease
+of use.
+
+--- Settimg Up the Toolbox ---
+To begin with, we need to add some spells to the Toolbox for use.
+
+* Click the "DM States Toolbox" button in the GM window to begin.
+
+To add a spell, type it's name into the box next to the "Search" button.  You can either click the "search" button or just
+hit <enter> after typing the spell's name, but you need to type the FULL spell's name.
+
+* Type "Fireball" into the search box and hit enter.
+
+You'll note that the spell "Fireball" as found in the database and was displayed in the table just below the search box.
+You'll also note that a big red "X" appears in the column under "Buff" and "Debuff" that means that the spell we entered
+does not have an effect we can set on the target.  You'll find both "Lightning Bolt" and "Magic Missile" also fall into
+this category.  While these ARE D&D 5e spells, they do not set spell effects (buffs or debuffs) on the target and thus
+cannot be tracked by issSpellStates.
+
+* Type "NoSpell" into the Search Box and hit Enter.
+
+You'll note that "NoSpell" is not a spell to be found in our spells database.  When you type the name of a non-existing
+spell or misspell a spell, you will get "No Spell Found" appearing in the table below the search box.  Try again!
+
+Ok, now lets start adding some spells for real to the toolbox.
+
+* Type "Bless" into the Search Box and hit Enter.
+
+You'll note a green "Check Mark" appears under the "Buff" column identifying this spell as applying a beneficial spell
+effect to a target.  You'll also note to the left of the spell name is a "+" button.  This is how you add a spell
+to the toolbox.  So long as the spell has a green checkmark in either the "Buff" or "Debuff" column, it will give
+you a "+" button to add the spell to the toolbox.
+
+* Click the "+" Button 
+
+You'll now see a green button appear under the "States In Toolbox" section below with the word "Bless" in it.  
+We've successfully added a trackable spell state to our toolbox!  Now, for full functionality demonstration, lets
+assume for a moment we really don't want to track Bless.  Removing a state from the toolbox is as easy as clicking
+it's button again!
+
+* Click the green "Bless" button under "States in Toolbox"
+
+It's gone!  That's all it takes to remove states from the toolbox.  Now, lets go ahead and add a couple more
+states:
+
+* Type "Bless" into the Search Box and Hit Enter - Add this State by using the "+" Button
+* Type "Hex" into the Search Box and hit Enter - Add this State by using the "+" Button
+* Type "Mage Armor" into the Search Box and hit Enter - Add this State by using the "+" Button
+
+You'll note that Bless and Mage Armor are both Green Buttons but Hex is Red, this is because Hex sets a determental
+effect on the target while "Bless" and "Mage Armor" are beneficial effects.
+
+Now, lets check out the last of the DM States Toolbox Functionality, resetting back to a clean toolbox!
+
+Assuming you have added a bunch of states that your players are no longer using, and instead of clicking each
+button one by one you just want to start over.  Click the "Clear Toolbox" link (don't worry, it won't do
+anything yet).
+
+You'll note a dialog box pops up with a list of spells currently in your Toolbox library and their spell numbers.
+At the bottom of this list is a check box and an "Ok" and "Cancel" button.
+
+* Check the Checkbox and Click "Ok"
+
+You'll note all of the states in your toolbox are now gone!  You're reset and ready for a new campaign.
+
+Ok, lets add a few states that we'll be playing with in the next section.
+
+* Add "Bless" to the Toolbox.
+* Add "Hex" to the Toolbox.
+* Add "Mage Armor" to the Toolbox.
+* Add "Stoneskin" to the Toolbox.
+* Add "Blur" to the Toolbox
+* Add "Banishment" to the Toolbox
+* Add "Fly" to the Toolbox
+* Add "Guidance" to the Toolbox.
+* Add "Haste" to the Toolbox.
+* Add "Guiding Bolt" to the Toolbox.
+
+(Feel free to play with this and add others if you'd like).
+
+Once you have all those states showing in your Tooltox, it's time to move to the next section, using these states!
+
+--- Using the Toolbox to Track States ----
+Now that we have some states in the toolbox, lets start tracking these abilties as they are applied to a target.
+For your own campaign, you'll want to have added all the spell states that your PCs regularly cast.  I prefer a
+"less is more" mentality with what I add to my toolbox since it's very easy to add another state on the fly if my
+players start casting spells they don't normally use.
+
+* On the GM or Campaign Window, click the "States Management Form" button.
+
+This opens another dockable frame that contains all of the states we just added.  Personally, I like to dock this
+window along a vertical just above the Spell Information box opened from "Lookup Spell Info", this allows me to
+use the two boxes together easily to look up buffs and debuffs applied to tokens in my campaign.
+
+Under "States in Toolbox" you should now see buttons for all of the states you just added on the Toolbox form.
+(There's lots of things in this box, no worries, we'll cover them all).
+
+The first thing to do now is to click on the PC Token on your map.  If have installed this to your own campaign
+instead of using the supplied campaign file for this tutorial, you'll need to make sure all of your campaign
+properties states and token properties are setup as noted in the installation instructions above.  If they 
+are not, things will nor work properly!
+
+Ok, so lets do the basic:  Lets apply the "Bless" state to the token.
+
+* Click the PC Token (Note that the text changes to your token's name with "Current States" after it)
+* Make sure "Refresh Spell Duration" is unchecked, and "Add Campaign States when Applying Spells" and "Remove
+	Campaign States when Removeing Spells" are checked.  We'll get to what those do later, but for now make 
+	sure these 3 options are set in this way for the following examples.
+* Click the "Bless" green button in the States Toolbox.
+
+Several things just happened.
+* An Icon just appeared on your token (A Green Icon with a "Hand" with a swirling ball trailing fire around it)
+* The Entry "Bless (10)" just appeared under "Buffs" in the "Manage Spell States" frame.
+
+The icon is for the generic campaign properties state "Buffed".  This state is used quite a bit by
+issSpellStates to identify a specialized beneficial spell has been applied to the target.
+
+Note also that the entry in the "Manage Spell States" frame for "Bless (10)" is hyperlinked.  Clicking that 
+hyperlink opens the "Bless" spell in the "Spell Information" window.  If you followed my advice and 
+docked the two windows one above the other, this is an easy way to see what spell states are associated
+with a token and what each of those states do.
+
+Now, if you deselect your PC Token (by clicking off of it) you'll notice the "Manage Spell States" frame
+stops showing the informaiton on the token.  If you were to highlight a different token it would instead
+show states from that token.
+
+Re-select the PC Token and it will re-display that token's effects.
+
+Ok, lets add a determental effect to the PC Token as well.
+
+* Click the PC Token
+* Click "Hex"
+
+Note Another Icon just popped up, this one is for the "Cursed" State.  The "Hex" spell sets the campaign
+state "cursed" (You can see it by opening it's entry in the Spells table and parsing the JSON to find
+the "State" data set within the JSON, you'll find it sets "Cursed") so "Cursed" was applied to our token.
+
+Note that "Hex (600)" came in under the "Debuffs" column of the "Manage Spell States" frame under the
+"Current States" section.  Again, it is hyperlinked and again clicking it will open the Spell Info form
+for the "Hex" spell.
+
+Ok, lets remove the Hexed State from our PC Token.
+
+* Click the PC Token
+* Click "Hex"
+
+Note that both the "Hex" spell state was removed from the "Debuffs" column AND the Cursed campaign state
+was removed from the token.  issSpellStates tries to clean up from itself when you add and remove spell
+effects from a token.  However there are a few "Gotcha's" with that.
+
+* Click the PC Token and click the "Blur" Button.
+
+Note a new Spell State "Blur (10)" was added to the Buffs column on the Manage Spell States frame but
+no new icon was set on the token, this is because both "Bless" and "Blur" set the generic "Buffed"
+campaign State.  
+
+Ok, lets remove Blur.
+
+* Click the PC Token and click the "Blur" Button.
+
+Oh oh.  Removing blur removed the identification marker for "buffed".  Now, when we look at the PC Token
+we can't see that it has a spell effect on it, even though "bless" is still active.  Because we had
+multiple spells that set the same campaign state, the first state to be removed also removed that 
+campaign state from the token.  Not Awesome!
+
+Just to clean things up, go ahead and remove Bless.
+
+-- Options --
+
+* Add Campaign States when Applying Spells
+
+Here's where the options come in.  Hover your mouse over "Add Campaign States when Applying Spells" and
+"Remove Campaign States when Removing Spells" and you'll notice that each of them has a hover over pop
+up that gives you instructions about the option.  Generally, the "Add" option is what causes the
+campaign states like "Buffed" or "Cursed" to be set when applying spell effects.
+
+* Uncheck the Check Box next to "Add Campaign States..."
+* Select the PC Token
+* Click "Bless"
+
+This time, you'll notice that bless did not set the "Buffed" state icon on the token.  With this unchecked
+issSpellStates does not attempt to set any Campaign States, it ONLY tracks it's own spell effects, meaning
+with this box unchecked, you can use issSpellStates without having a need to add to your campaign properties
+in any way.  If you prefer to keep a limited set of states in your campaign or you don't use campaign
+properties / states, or you just want to play around with issSpellStates without poluting your campaign 
+before you find it useful, you can simply unset this checkbox and not bother with adding all the states 
+that issSpellStates requires out of the box.
+
+* Remove Campaign States when Removing Spells
+
+Ok, lets reset again.
+
+* Remove "Bless" from the PC Token.
+* Re-check Add Campaign States when Applying Spells.
+* Apply Bless and Blur to the PC Token.
+
+Ok, so we now know what's going to happen if we unset blur...it's going to remove the "Buffed" mark on the
+token and we'll no longer be able to see that "bless" is still a thing.
+
+This time, however we're going to unset "Remove Campaign States when Removing Spells" to change this behavior.
+
+* Uncheck "Remove Campaign States when Removing Spells"
+* Unset the "blur" effect from the PC Token.
+
+You'll notice "Blur" disappeared as an effect on the PC Token, but the "Buffed" campaign state remained.
+
+* To finish up, re-check the Remove Campaign States option and remove Bless.
+
+This did as expected, removing both the "Bless" Spell effect from the token and the "Buffed" campaign State.
+
+Now on to our final option:
+
+* Refresh Spell Duration
+
+This option changes the behavior of clcking the button for the spell effect that is already applied to the
+target.  Instead of removing the spell from the target it resets it's duration counter.  Lets see how
+this works.
+
+* Ensure Add Campaign States and Remove Campaign States are checked.
+* Ensure "Refresh Spell Duration" is unchecked.
+* Apply the "Bless" spell to the PC Token.
+
+The Bless spell effect is applied and it's "hyperlinked" text appears under the "buffs" section of 
+the "Manage Spell States" frame.  However, note how it says "Bless (10)".  The number in () is the
+spell's duration in units of time...for D&D This is Rounds.  Bless lasts 1 minute as per it's spell 
+description (click the hyperlink for bless to see it's spell information in the Spell Information 
+Window)...so 1 minute, with 6 seconds / round, is 10 rounds.  So when first cast, Bless's Duration 
+identifier is 10.
+
+There are better ways of doing this, but for the example of this tutorial we're going to do things
+the "manual" way.  (For a better way of handling this task, see the main documentation.)
+
+Right click the PC token, click "Edit", and go to the "Properties" tab.  Right now you should see
+one JSON object in "spellBuffs" that reads {"38":10}.  Change this to {"38":9} and refresh your
+"Manage Spell States" frame (click off and back onto the PC Token).  You'll note that the frame 
+now shows "Bless (9)".  
+
+* Check the Box next to "Refresh Spell Duration" to make sure it is Checked.
+* Click the PC Token
+* Click "Bless"
+
+This time, notice that clicking "Bless" did not remove the bless spell or the "buffed" state from the 
+token even though that is the usual behavior.  Instead, notice how bless now reads "Bless (10)" again
+like it has in the past, this is because instead of removing the spell, with "Refresh Spell Duration"
+you are essentially "reapplying" the spell effect on the token.  Resetting it back to it's original
+default state.
+
+Use this option if you are actively using the spell effect durations and you need to re-apply a spell
+to a token to refresh its duration.
+
+OR There's one more SNEAKY use for this checkbox.
+
+Remeber the problem from above?  Apply bless, apply blur, remove blur and it removes the "buffed" 
+campaign state leaving us not knowing that bless is still there?
+
+* Uncheck "Refresh Spell Duration", make sure both "Add/Remove Campaign States" check boxes are 
+	checked.
+* Apply "Bless" and "Blur" to the PC Token.
+* Remove "Blur"
+
+As above, the "Buffed" campaign state is gone.
+
+* Click the CHeck Box by "Refresh Spell Duration"
+* Click the PC Token
+* Click "Bless"
+
+Note that it re-applied the campaign state and DID NOT remove the spell.  This only works if
+you aren't using or don't care about the "Current Duration" of bless, as doing this WOULD reset
+the duration counter on bless.  But if you aren't using the duration counters actively, this is
+an easy way to re-apply the correct campaign state without removing and re-applying the spell 
+for any spell or ability.
+
+--- Getting the Current State of a Token ---
+
+The last capability of the issSpellStates framework is the ability to, at any point in time, 
+get the current state of any token on the board.  Two clicks will get you all the information
+you want about any token you'd like!
+
+Lets start by setting some states on our PC Token.
+
+* Options: Refresh Spell Duration off, Add/Remove Campaign States On
+* Lets apply the following Spell Effects:  Bless, Haste, Stoneskin, Mage Armor, Blur, Guiding Bolt, 
+Hex and Banishment.
+
+Ok, our PC token now has 6 icons and 8 spell states set on him...in the middle of combat it can be 
+tough to look at all of those icons and states and know exactly what they mean.  Along with what's
+been set by issSpellStates there could be a host of OTHER Campaign states set on the token as well.
+
+This can be confusing and cause delays as the DM tries to figure out how to set or unset states
+based upon effects being added or cancelled.  issSpellStates has been developed with ease of use
+and management in mind...with spells able to set and remove their own campaign states...but that
+still doesn't mean it's easy to see everything.  And what about players, who may or may not have
+access to the Manage Spell States box?  How do they know what everything happening on a token is?
+
+The answer is "Get Token Effects": this button is intended to be a "click anytime and get all the
+relevant information" in one easy to read format.
+
+With your PC token loaded down with spell effects, click the "Get Token Effects" button to check
+its current status.
+
+* Click the PC Token (Loaded with spells)
+* Click the "Get Token Effects" button.
+
+The chat window just got an HTML formatted message with all of the relevant information in it.
+We see that the "Cursed, Buffed, Debuffed, Disabled, Hasted and Resistence" campaign states are
+set on the token.  We see that the token has Bless, Haste, Stoneskin, Mage Armor and Blur set on
+it as buffs (and each of them are linked to the Spell Information frame to display that spell's
+info at a glance just with a click), and we also see that it has the Guiding Bolt, Hex and
+Banishment Debuffs on it...again, all linkded to the Spell Information Box.
+
+With this, any player at any time can "request" a full layout of everything going on with a token
+and get any relevant information about what that means...all through a few clicks of the mouse.  
+
+You're still going to have to know spell and campaign effects, but at least it's better than
+the old tabletop standby of "ok, there's a red, black and white milk ring around my character,
+red stands for hex but what was white again?" only to figure out 4 rounds later that red really
+meant banishment, white was hex and, oops, black was spell resistance that probably meant the
+other two shouldn't have applied in the first place!
+
+And, this beats the VTT standby of "Well, we don't HAVE a state for 'hex' so we'll use the 'blind'
+state for it for now" only to have someone cast something with a blind spell effect 3 rounds in 
+to combat and the DM has to play the "wait, ok, so I guess we'll now set the fightened state for hex"
+or, conversely, for the DM to say "Wait, what did 'blind' man again?"
