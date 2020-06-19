@@ -76,10 +76,14 @@ Open the Selection, GM and Campaign Windows.
 
 Import the Spells Table
 * Open the Tables Window.
-* Import the "issSpellStates.mttable" file into your Campaign Tables.
-* Make Sure this table is called "issSpellStates"
+* In the Archive is a Directory for the Supported Frameworks (as of the initial Release, just D&D 5th Edition)
+* Open the directory for a supported RPG platform.
+* Import the "issSpellStates.mttable" file from that RPG Directory into your Campaign Tables.
+* Make Sure this table is called "issSpellStates" (regardless of which RPG platform, the table neeeds to be called
+	issSpellStates for things to work).
 
-(See Campaign States Later in this Document)
+Deal With Campaign States (If Needed)
+	(See Campaign States Later in this Document)
 
 --------------------------
 USING THE CAMPAIGN FILE 
@@ -92,8 +96,8 @@ USING THE CAMPAIGN FILE
 * Copy the "Lookup Spell Info" macro to your Campaign Window.
 * Copy the "States Management Form" macro to your GM Window (can go to Campaign if players are setting states)
 * Copy the "Get Token Effects" macro to your Campaign Window.
-
-(See Campaign States Later in this Document)
+* Setup any Needed Campaign States
+	(See Campaign States Later in this Document)
 
 
 
