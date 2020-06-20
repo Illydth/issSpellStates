@@ -1,0 +1,49 @@
+Campaign States List
+
+* Advantage				Extended			3x3
+* AFK					Other				Image
+* Blinded				Conditions			3x3
+* Buffed				General				3x3
+* Changed				General				3x3
+* Charmed				Conditions			3x3
+* Concentrating			Conditions			Dot (NW)
+* CoverFull				Extended			Image
+* CoverHalf				Extended			Image
+* CoverMost				Extended			Image
+* Cursed				General				3x3
+* Dead					Conditions			Image
+* Deafened				Conditions			3x3
+* Debuffed				General				3x3
+* Disabled				General				3x3
+* Disadvantage			Extended			3x3
+* Dodging				Extended			3x3
+* Dying					Conditions			3x3
+* EnhVision				General				3x3
+* Exhaustion 1			Exhaustion			Dot (SW)
+* Exhaustion 2			Exhaustion			Dot (SW)
+* Exhaustion 3			Exhaustion			Dot (SW)
+* Exhaustion 4			Exhaustion			Dot (SW)
+* Exhaustion 5			Exhaustion			Dot (SW)
+* Frightened			Conditions			3x3
+* Grappeled				Conditions			3x3
+* Hasted				General				3x3
+* Immunity				General				3x3
+* Incapacitated			Conditions			3x3
+* Inspiration			Extended			Dot (NE)
+* Invisible				Conditions			3x3
+* Paralyzed				Conditions			3x3
+* Petrified				Conditions			3x3
+* Poisoned				Conditions			3x3
+* Prone					Conditions			3x3
+* Raging				Extended			3x3
+* Resistance			General				3x3
+* Restrained			Conditions			3x3
+* Shifted				Extended			3x3
+* Slowed				General				3x3
+* Squeezing				Extended			3x3
+* Stable				Conditions			3x3
+* Stunned				Conditions			3x3
+* Suffocating			Conditions			3x3
+* Transformed			General				3x3
+* Turned				Extended			3x3
+* Unconscious			Conditions			3x3
