@@ -536,6 +536,25 @@ For instance, if "Flesh to Stone" were cast on a target token, and that token ha
 setting "optRemCStateOnRemove" to 1 would cause the "Petrified" contdition to be removed by the clearEffectsFromToken API
 call when it goes to clear the "Flesh to Stone" spell effect.
 
+----
+*** isConcentrationEffect@Lib:issSpellStates() ***
+This API takes in a spell or effect name and validates the "concentration" flag on the spell.  Specific to D&D 5th Edition, 
+this allows a framework to check to see whether the concentration state needs to be set and/or if the conentration state
+needs to be overriden with a new spell.  
+
+GENERALLY, however, the Concentration flag could be set for any RPG Platform to designate spells / effects that cannot
+coincide with each other.  A broader use for the ssytem would be to set different values for the concentration flag assuming
+there are groups of abilites / spells that cannot coincide with each other.  So if you can only have one "Group A" spell 
+or effect on you at one time, this API could return the information that the newly executed ability is a "Group A" ability
+thus allowing the framework to do the correct things.
+
+This API will simply return the value in the "Concentration" flag on the database.  Out of the Box, for D&D 5th Edition this 
+is either a 1 or a 0, depending on whether the spell is a spell requiring concentration or not.
+
+* 0 - The Spell is NOT a spell requiring concentration.
+* 1 - The spell is a spell requiring concentration.
+
+----
 *** Other APIs ***
 There are plenty more integration points that could be included, however the above should provide the basic functionality
 for dealing wtih the features of issSpellStates.
