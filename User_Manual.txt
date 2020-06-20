@@ -55,8 +55,8 @@ Edit / Modify Your Campaign Properties:
 	optRemCStateOnRemove
 * Add the following to the Campaign Properties for Monsters and PC Tokens (Basic Properties).
 	____ILLYDTH_TOKEN_SPELLSTATES_PROPERTIES____
-	spellBuffs
-	spellDebuffs
+	issSpellBuffs
+	issSpellDebuffs
 
 Deal with the Token Files:
 * Copy the 3 Tokens to the library map of your campaign.
@@ -81,6 +81,19 @@ Import the Spells Table
 * Import the "issSpellStates.mttable" file from that RPG Directory into your Campaign Tables.
 * Make Sure this table is called "issSpellStates" (regardless of which RPG platform, the table neeeds to be called
 	issSpellStates for things to work).
+
+Import the Campaign Macros/States (Optional)
+* To use the Consolidated / Cohesive icons and coloration for 5e campaign states, import the Campaign States to
+	your campaign.
+* Rename any Campaign Groups you have called:
+	2. Conditions
+	3. Exhaustion
+	4. Cover
+	5. Other States
+* Open your Campaign Macros Window
+* Right Click and Import Macro Group
+* Open the issSpellStates_Campaign_State_Macros Maptool Campaign Macro Set for the RPG Platform of Choice.
+* Macro Buttons for campaign states should be imported into the Campaign Macros Section.
 
 Deal With Campaign States (If Needed)
 	(See Campaign States Later in this Document)
@@ -295,9 +308,57 @@ the issSpellStates system.  Adding an additional call of "getSpellByName" or "re
 is perfectly fine, but modifying the "getSpellByName" or "removeTokenEffect" macros (or any other macros called by
 code within the issSpellStates system) will almost certainly break issSpellStates.  
 
-The APIs available are as follows:
+--- "Overloaded" Macro Inputs ---
+(See "ZZZ-Example API Calls" on the Lib:Token for code examples of how to call each of the below APIs)
 
+All of the APIs are "Overloaded" (as in the programming definition of "function overloading") with regards to their 
+input parameters.  Each of the below APIs can take in 0, 1 or >1 TokenIDs and it will do the sane thing with them.
+
+If No Token ID's are sent into the API call ([h: tokenIDList = ""]) each function will use "getSelected()" to
+determine what to apply it's effects to.  If the Token ID List is blank and there are no selected tokens, the APIs
+will simply do nothing.
+
+If the Token ID List is populated with one or more token IDs, the API functions will *ignore selected tokens* and 
+instead use the Token ID List that was passed to the function to perform it's actions.  It is important enough to
+call this out once again.  If one or more TokenIDs are passed to an API Call THE API CALL WILL IGNORE SELECTED 
+TOKENS AND ***ONLY*** APPLY IT'S EFFECTS TO THE PASSED TOKEN IDS.
+
+Because of this "overloading" all of the following are viable ways of calling any API listed below:
+
+*** Calls <issAPIName> and lets it use getSelected() to perform it's actions ***
+[h: tokenIDList = ""]
+[h: testParams = json.append("", tokenIDList, <ADDITIONAL PARAMETER>, ...)]
+[r, macro("<issAPIName>@Lib:issSpellStates"): testParams]
+
+*** Calls <issAPIName> and has it use a token of Specified ID to perform it's actions ***
+***    --- Important:  Selected Tokens will not be affected.---  ***
+[h: tokenIDList = "0764DC933DC7458CA06280C282A6A5CE"]
+[h: testParams = json.append("", tokenIDList, <ADDITIONAL PARAMETER>, ...)]
+[r, macro("<issAPIName>@Lib:issSpellStates"): testParams]
+
+*** Calls <issAPIName> and has it use a token of Specified IDs to perform it's actions ***
+***    --- Important:  Selected Tokens will not be affected.---  ***
+[h: tokenIDList = "0764DC933DC7458CA06280C282A6A5CE, 2DCA142F5E7B4F4582AB182DA2A20595"]
+[h: testParams = json.append("", tokenIDList, <ADDITIONAL PARAMETER>, ...)]
+[r, macro("<issAPIName>@Lib:issSpellStates"): testParams]
+
+*** Calls <issAPIName> and has it use a calculated list of tokens to perform it's actions ***
+***    --- Important:  Selected Tokens will not be affected.---  ***
+[h: cond = '{ "range": {"upto":2, "distancePerCell":0, "token":"' +  getSelected() + '"}, "npc":1}']
+[h: tokenIDList = getTokens("json", cond)]
+[h: testParams = json.append("", tokenIDList, <ADDITIONAL PARAMETER>, ...)]
+[r, macro("<issAPIName>@Lib:issSpellStates"): testParams]
+
+Of note: The "Token List" is it's own separate JSON array with the ENTIRE array indexed as element 0.
+All APIs use [h: tokenIDList = json.get(inputTokenList, 0)] to get the entire array into an element.  Please follow
+this format when calling the APIs.
+
+--- The APIs available are as follows: ---
+
+
+----
 *** addEffectToToken@Lib:issSpellStates() ***
+
 This API takes an effect name (the name of any spell or effect in the issSpellStates table) and applies the spell or 
 effect a selected token or group of tokens.  This is used to allow other frameworks through it's own macros and features
 to set a spell effect on a token.  
@@ -318,7 +379,9 @@ token.  However, if "optAddCStateOnApply" is set to 1, it will ALSO set the "Pet
 then track BOTH "Petrified" and "Flesh to Stone" on the target.  This makes it easy for a framework to appropriately set
 relevant states on a token through an effect, ability or spell.
 
+----
 *** clearEffectsFromToken@Lib:issSpellStates() ***
+
 This API completely removes all effects from the target token or tokens.  All tracked spell states (and their associated
 campaign states) will be removed from the selected token or tokens when this API call is made.  This is used when a 
 framework wants to completely clear all tracked issSpellStates effects associated with a token.
@@ -338,6 +401,7 @@ For instance, if "Flesh to Stone" were cast on a target token, and that token ha
 setting "optRemCStateOnRemove" to 1 would cause the "Petrified" contdition to be removed by the clearEffectsFromToken API
 call when it goes to clear the "Flesh to Stone" spell effect.
 
+----
 *** decrementSpellDuration@Lib:issSpellStates() ***
 
 By default, issSpellStates does very little with the duration of spells or effects.  There is no inherent 
@@ -355,7 +419,9 @@ issSpellStates to decrement the duration counters automatically as combat shifts
 
 See "Spell Duration Management" Above for more information about this functionality.
 
+----
 *** getEffectsOnToken@Lib:issSpellStates() ***
+
 This API call returns a JSON object with information about what issSpellStates are applied to the token.  This is
 somewhat akin to the "getState" functionality within Maptool Macros.  Because issSpellStates is tracking states
 that aren't campaign states (and thus cannot be retrieved using getState(), this API call allows frameworks to retrieve 
@@ -437,6 +503,7 @@ EXAMPLE:
   ]}
 ]
 
+----
 *** isEffectOnToken@Lib:issSpellStates() ***
 This is a macro that returns a simple 1 or 0 depending upon whether the input effect name is currently applied
 to the token or not.  This can be used by a framework in code to validate whether any given effect is applied to 
@@ -445,8 +512,9 @@ any specific token.
 NOTE:  This will return 3 results:
 * "0" - If the effect is not on the token.
 * "1" - If the effect is on the token.
-* "2" - If multiple tokens are selected.
+* "2" - If something other than 1 token is selected (0 or >1 Will Return a "2")
 
+----
 *** removeEffectFromToken@Lib:issSpellStates() ***
 This API takes an effect name (the name of any spell or effect in the issSpellStates table) and removes the spell or 
 effect from a selected token or group of tokens.  This is used to allow other frameworks through it's own macros and features

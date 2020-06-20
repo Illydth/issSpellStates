@@ -464,7 +464,12 @@ accordingly.</i><br>
 <br>
 <i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i>
 </html> ; minWidth=
-[h: spellName = json.get(macro.args, 0)]
+[h: tokenIDList = json.get(macro.args, 0)]
+[h: spellName = json.get(macro.args, 1)]
+
+[h, if(json.length(tokenIDList) > 0), CODE:
+{ [h: ids = tokenIDList] };
+{ [h: ids = getSelected()] }]
 
 [h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
 [h: spellNum = macro.return]
@@ -477,7 +482,6 @@ accordingly.</i><br>
 
 [h: appCStates = getLibProperty("optAddCStateOnApply", "Lib:issSpellStates")]
 
-[h: ids = getSelected()]
 [h, foreach(id, ids), CODE:
 {
 	[h: addResetEffectParams = json.append("", id, spellNum, appCStates)]
@@ -500,9 +504,13 @@ accordingly.</i><br>
 <br>
 <i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i>
 </html> ; minWidth=
+[h: tokenIDList = json.get(macro.args, 0)]
+[h, if(json.length(tokenIDList) > 0), CODE:
+{ [h: ids = tokenIDList] };
+{ [h: ids = getSelected()] }]
+
 [h: remCStates = getLibProperty("optRemCStateOnRemove", "Lib:issSpellStates")]
 
-[h: ids = getSelected()]
 [h, foreach(id, ids), CODE:
 {
 	[switchToken(id)]
@@ -540,15 +548,20 @@ Only values that are not "0" or "" will be touched.<br>
 <ul><li>N/A</li></ul>
 <b>Properties Affected</b>
 <ul>
-<li>spellBuffs</li>
-<li>spellDebuffs</li>
+<li>issSpellBuffs</li>
+<li>issSpellDebuffs</li>
 </ul>
 <i>Note: This is an "API" call, intended to be used within a "Next Round" / "End Iniative"
 or other process written by the campaigin implimentor.<br>  No functionality within 
 "SpellStates" exists that uses this functionality.  It is being provided for use by
 campaign frameworks in the case it&#39;s useful.</i>
 </html> ; minWidth=
-[h: ids = getSelected()]
+[h: tokenIDList = json.get(macro.args, 0)]
+
+[h, if(json.length(tokenIDList) > 0), CODE:
+{ [h: ids = tokenIDList] };
+{ [h: ids = getSelected()] }]
+
 [h, foreach(id, ids), CODE: 
 {
 	[h: switchToken(id)]
@@ -558,14 +571,14 @@ campaign frameworks in the case it&#39;s useful.</i>
 	[h: buffEffects = macro.return]
 	[h, macro("decrementTimer@Lib:issSpellStates"): buffEffects]
 	[h: buffEffects = macro.return]
-	[h: setProperty("spellBuffs", buffEffects)]
+	[h: setProperty("issSpellBuffs", buffEffects)]
 
 	[h: getEffectsParams = json.append("", id, 0, 1)]
 	[h, macro("getTokenEffectsList@Lib:issSpellStates"): getEffectsParams]
 	[h: debuffEffects = macro.return]
 	[h, macro("decrementTimer@Lib:issSpellStates"): debuffEffects]
 	[h: debuffEffects = macro.return]
-	[h: setProperty("spellDebuffs", debuffEffects)]
+	[h: setProperty("issSpellDebuffs", debuffEffects)]
 }]
 
 !!
@@ -606,9 +619,14 @@ See Below for the JSON Format.<br>
 ]
 </pre>
 </html> ; minWidth=
+[h: tokenIDList = json.get(macro.args, 0)]
+
+[h, if(json.length(tokenIDList) > 0), CODE:
+{ [h: ids = tokenIDList] };
+{ [h: ids = getSelected()] }]
+
 [h: effectsObj = ""]
 
-[h: ids = getSelected()]
 [r, foreach(id, ids), CODE:
 {
 	[h: buffSpellObj = ""]
@@ -648,10 +666,42 @@ See Below for the JSON Format.<br>
 [h: macro.return = effectsObj]
 
 !!
+@@ @isConcentrationEffect
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+Checks if the passed in effect is a concentration effect or not.<br>
+More generically, this API allows validation of whether a spell or effect is exclusionary
+of other spells or effects.<br>This checks the "concentration" flag on the spell in the database to determine if it's set.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - SpellName - The Name of the Spell to apply to the token.</li>
+</ul>
+<b>Outputs:</b>
+<ul>
+<li>0 - The spell or effect is not a concentration/exclusionary effect.</li>
+<li>1 - The spell or effect is a concentration/exclusionary effect.</li>
+</ul>
+<i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i>
+</html> ; minWidth=
+[h: spellName = json.get(macro.args, 0)]
+
+[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
+[h: spellNum = macro.return]
+[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+[h: spellRecord = macro.return]
+[h: spellAll = json.get(spellRecord, spellNum)]
+[h: concentration = json.get(spellAll, "Concentration")]
+
+[macro.return = concentration]
+
+!!
 @@ @isEffectOnToken
 @PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
 Checks for the passed in spell effect on the token, returns 1 if there, 0 if not and<br>
 2 if more than one token is selected.<br>
+<br>
+This version of the API checks effects on the passed in Token ID instead of on selected
+tokens.<br>
 <br>
 <b>Inputs:</b>
 <ul>
@@ -661,35 +711,38 @@ Checks for the passed in spell effect on the token, returns 1 if there, 0 if not
 <ul>
 <li>0 - Numeric Value returned if the token does NOT contain the effect.</li>
 <li>1 - Numeric Value returned if the token does contain the effect.</li>
-<li>2 - Numeric Value returned if more than one token was selected.</li>
 </ul>
 <i>Note: This API returns simple True/False information whether the checked<br>
 for spell effect resides on the token. However, it is intended that this API is<br>
 used for checking the effect on a single token at a time. If more than one token<br>
 is passed to the function at once, a 2 is returned to identify incorrect usage.</i><br>
 </html> ; minWidth=
-[h: spellName = json.get(macro.args, 0)]
+[h: tokenIDList = json.get(macro.args, 0)]
+[h: spellName = json.get(macro.args, 1)]
 
-[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
-[h: spellNum = macro.return]
-[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
-[h: spellRecord = macro.return]
-[h: spellAll = json.get(spellRecord, spellNum)]
-[h: sBuff = json.get(spellAll, "Buff")]
-[h: sDebuff = json.get(spellAll, "Debuff")]
+[h, if(json.length(tokenIDList) > 0), CODE:
+{ [h: ids = tokenIDList] };
+{ [h: ids = getSelected("json")] }]
 
-[h: ids = getSelected("json")]
-[if(json.length(ids) == 1), CODE: 
+[h, if(json.length(ids) != 1), CODE:
+{ [h: retVal = 2] };
 {
 	[h: id = json.get(ids, 0)]
+	[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
+	[h: spellNum = macro.return]
+	[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+	[h: spellRecord = macro.return]
+	[h: spellAll = json.get(spellRecord, spellNum)]
+	[h: sBuff = json.get(spellAll, "Buff")]
+	[h: sDebuff = json.get(spellAll, "Debuff")]
+	
 	[h: effectsListParams = json.append("", id, sBuff, sDebuff)]
 	[macro("getTokenEffectsList@Lib:issSpellStates"): effectsListParams]
 	[h: effectList = macro.return]
 	[r, if(json.contains(effectList, spellNum)), CODE:
 	{ [h: retVal = 1] };
 	{ [h: retVal = 0] }]
-};
-{ [h: retVal = 2] }]
+}]
 
 [h: macro.return = retVal]
 
@@ -711,7 +764,12 @@ accordingly.</i><br>
 <br>
 <i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i>
 </html> ; minWidth=
-[h: spellName = json.get(macro.args, 0)]
+[h: tokenIDList = json.get(macro.args, 0)]
+[h: spellName = json.get(macro.args, 1)]
+
+[h, if(json.length(tokenIDList) > 0), CODE:
+{ [h: ids = tokenIDList] };
+{ [h: ids = getSelected()] }]
 
 [h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
 [h: spellNum = macro.return]
@@ -724,11 +782,10 @@ accordingly.</i><br>
 
 [h: remCStates = getLibProperty("optRemCStateOnRemove", "Lib:issSpellStates")]
 
-[h: ids = getSelected()]
-[r, foreach(id, ids), CODE:
+[h, foreach(id, ids), CODE:
 {
 	[h: removeEffectParams = json.append("", id, spellNum, remCStates)]
-	[macro("removeTokenEffect@Lib:issSpellStates"): removeEffectParams]
+	[h, macro("removeTokenEffect@Lib:issSpellStates"): removeEffectParams]
 }]
 
 !!
@@ -762,12 +819,12 @@ Adds the Passed in Spell Effect to the Token, or Resets Token to Initial Duratio
 [h: stateList = json.get(spellAll, "State")]
 
 [h: switchToken(id)]
-[h, if(sBuff == 1), CODE: { [effectList = getProperty("spellBuffs")] };{}]
-[h, if(sDebuff == 1), CODE: { [effectList = getProperty("spellDebuffs")] };{}]
+[h, if(sBuff == 1), CODE: { [effectList = getProperty("issSpellBuffs")] };{}]
+[h, if(sDebuff == 1), CODE: { [effectList = getProperty("issSpellDebuffs")] };{}]
 
 [h: newEffectList = json.set(effectList, spellNum, effectCount)]
-[h, if(sBuff == 1), CODE: { [setProperty("spellBuffs", newEffectList)] };{}]
-[h, if(sDebuff == 1), CODE: { [setProperty("spellDebuffs", newEffectList)] };{}]
+[h, if(sBuff == 1), CODE: { [setProperty("issSpellBuffs", newEffectList)] };{}]
+[h, if(sDebuff == 1), CODE: { [setProperty("issSpellDebuffs", newEffectList)] };{}]
 
 [h, if(stateList != "" && appCStates == 1), CODE:
 { 
@@ -919,7 +976,7 @@ Returns a list of Buff or Debuff effects on a token based upon buff/debuff param
 </ul>
 <b>Returns:</b>
 <ul>
-<li>stateList - Returns the current List of Effects in either the spellBuffs or spellDebuffs property on a token depending upon the sBuff/sDebuff mark.</li>
+<li>stateList - Returns the current List of Effects in either the issSpellBuffs or issSpellDebuffs property on a token depending upon the sBuff/sDebuff mark.</li>
 </ul>
 </html> ; minWidth=
 [h: '<!-- Get Incoming Parameters -->']
@@ -932,9 +989,9 @@ Returns a list of Buff or Debuff effects on a token based upon buff/debuff param
 [switchToken(id)]
 
 [h, if(sBuff == 1), CODE:
-{ [stateList = getProperty("spellBuffs")] };{}]
+{ [stateList = getProperty("issSpellBuffs")] };{}]
 [h, if(sDebuff == 1), CODE:
-{ [stateList = getProperty("spellDebuffs")] };{}]
+{ [stateList = getProperty("issSpellDebuffs")] };{}]
 
 [h: macro.return = stateList]
 
@@ -969,13 +1026,13 @@ as noted on the incoming spell.<br>
 
 [h: <!-- Get Effect List by Buff/Debuff -->]
 [switchToken(id)]
-[h, if(sBuff == 1), CODE: { [effectList = getProperty("spellBuffs")] };{}]
-[h, if(sDebuff == 1), CODE: { [effectList = getProperty("spellDebuffs")] };{}]
+[h, if(sBuff == 1), CODE: { [effectList = getProperty("issSpellBuffs")] };{}]
+[h, if(sDebuff == 1), CODE: { [effectList = getProperty("issSpellDebuffs")] };{}]
 
 [h: <!-- Find the Effect in the JSON, Update its Effect Counter to "effectCount" -->]
 [h: newEffectList = json.set(effectList, spellNum, effectCount)]
-[h, if(sBuff == 1), CODE: { [setProperty("spellBuffs", newEffectList)] };{}]
-[h, if(sDebuff == 1), CODE: { [setProperty("spellDebuffs", newEffectList)] };{}]
+[h, if(sBuff == 1), CODE: { [setProperty("issSpellBuffs", newEffectList)] };{}]
+[h, if(sDebuff == 1), CODE: { [setProperty("issSpellDebuffs", newEffectList)] };{}]
 
 [r: spellName]&#39;s duration has been refreshed on [token.name].
 
@@ -1012,15 +1069,15 @@ Removes the Passed in Spell Effect from the Token.<br>
 
 [h: switchToken(id)]
 [h, if(sBuff == 1), CODE:
-{ [effectList = getProperty("spellBuffs")] };{}]
+{ [effectList = getProperty("issSpellBuffs")] };{}]
 [h, if(sDebuff == 1), CODE:
-{ [effectList = getProperty("spellDebuffs")] };{}]
+{ [effectList = getProperty("issSpellDebuffs")] };{}]
 
 [r, if(json.contains(effectList, spellNum)), CODE:
 { 
 	[h: newEffectList = json.remove(effectList, spellNum)]
-	[h, if(sBuff == 1), CODE: { [setProperty("spellBuffs", newEffectList)] };{}]
-	[h, if(sDebuff == 1), CODE: { [setProperty("spellDebuffs", newEffectList)] };{}]
+	[h, if(sBuff == 1), CODE: { [setProperty("issSpellBuffs", newEffectList)] };{}]
+	[h, if(sDebuff == 1), CODE: { [setProperty("issSpellDebuffs", newEffectList)] };{}]
 	[h: effRemoved = 1]
 };{}]
 
@@ -1036,22 +1093,42 @@ Removes the Passed in Spell Effect from the Token.<br>
 @@ @apiTest_AddEffect
 @PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=5 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
 [h: spellName = "Bless"]
-[r, macro("addEffectToToken@Lib:issSpellStates"): spellName]
+[h: tokenIDList = ""]
+[h: testParams = json.append("", tokenIDList, spellName)]
+[r, macro("addEffectToToken@Lib:issSpellStates"): testParams]
+
+!!
+@@ @apiTest_AddEffectTokenList
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip=Select the PC token and it will apply to all NPCs around the token. ; minWidth=
+[h: spellName = "Hex"]
+
+[h: cond = '{ "range": {"upto":2, "distancePerCell":0, "token":"' 
+	+  getSelected() + '"}, "npc":1}']
+[h: tokenIDList = getTokens("json", cond)]
+
+[h: testParams = json.append("", tokenIDList, spellName)]
+[r, macro("addEffectToToken@Lib:issSpellStates"): testParams]
 
 !!
 @@ @apiTest_ClearEffects
 @PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
-[r, macro("clearEffectsFromToken@Lib:issSpellStates"): "none"]
+[h: tokenIDList = ""]
+[h: testParams = json.append("", tokenIDList)]
+[r, macro("clearEffectsFromToken@Lib:issSpellStates"): testParams]
 
 !!
 @@ @apiTest_DecrementCounter
 @PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
-[r, macro("decrementSpellDuration@Lib:issSpellStates"): "none"]
+[h: tokenIDList = ""]
+[h: testParams = json.append("", tokenIDList)]
+[r, macro("decrementSpellDuration@Lib:issSpellStates"): testParams]
 
 !!
 @@ @apiTest_GetEffects
 @PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
-[r, macro("getEffectsOnToken@Lib:issSpellStates"): "none"]
+[h: tokenIDList = ""]
+[h: testParams = json.append("", tokenIDList)]
+[r, macro("getEffectsOnToken@Lib:issSpellStates"): testParams]
 [h: retJson = macro.return]
 
 <pre>
@@ -1063,18 +1140,54 @@ Output JSON:
 @@ @apiTest_IsEffectOnToken
 @PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=5 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
 [h: spellName = "Bless"]
-[r, macro("isEffectOnToken@Lib:issSpellStates"): spellName]
+[h: tokenIDList = ""]
+[h: testParams = json.append("", tokenIDList, spellName)]
+[r, macro("isEffectOnToken@Lib:issSpellStates"): testParams]
 [h: retVal = macro.return]
 
 [r, if(retVal == 1), CODE: { [r: spellName] is applied to Token. };{}]
 [r, if(retVal == 0), CODE: { [r: spellName] is NOT applied to Token. };{}]
-[r, if(retVal == 2), CODE: { Too Many Tokens Selected, Select 1 Token Only. };{}]
+[r, if(retVal == 2), CODE: { Incorrect Token Count, Select 1 Token Only. };{}]
 
 !!
 @@ @apiTest_RemoveEffect
 @PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
 [h: spellName = "Bless"]
-[r, macro("removeEffectFromToken@Lib:issSpellStates"): spellName]
+[h: tokenIDList = ""]
+[h: testParams = json.append("", tokenIDList, spellName)]
+[r, macro("removeEffectFromToken@Lib:issSpellStates"): testParams]
+
+!!
+@@ @apiTest_RemoveEffectTokenList
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip=Select the PC token and it will apply to all NPCs around the token. ; minWidth=
+[h: spellName = "Hex"]
+
+[h: cond = '{ "range": {"upto":2, "distancePerCell":0, "token":"' 
+	+  getSelected() + '"}, "npc":1}']
+[h: tokenIDList = getTokens("json", cond)]
+
+[h: testParams = json.append("", tokenIDList, spellName)]
+[r, macro("removeEffectFromToken@Lib:issSpellStates"): testParams]
+
+!!
+@@ @apiTest_isConcentration
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=6 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Example API Calls ; tooltip= ; minWidth=
+[h: spellName = "Fireball"]
+[h, macro("isConcentrationEffect@Lib:issSpellStates"): spellName]
+[h: concentration = macro.return]
+
+[r, if(concentration == 1), CODE:
+{  [r: spellName] Is a Concentration Spell };
+{  [r: spellName] is NOT a Concentration Spell }]
+<br>
+
+[h: spellName = "Stoneskin"]
+[h, macro("isConcentrationEffect@Lib:issSpellStates"): spellName]
+[h: concentration = macro.return]
+
+[r, if(concentration == 1), CODE:
+{  [r: spellName] Is a Concentration Spell };
+{  [r: spellName] is NOT a Concentration Spell }]
 
 !!
 @@ @applySpellEffect

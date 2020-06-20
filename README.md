@@ -58,6 +58,49 @@ areas of your campaign.
 You can use the included campaign file (issSpellStates_Base.cmpgn) to build your own campaign off of this framework.
 The campaign file has all the needed states, properties and buttons setup and ready to go for issSpellStates to work.
 
+
+### Additional Available Assets and Integrations
+The release files include several additional binaries not included in the GIT archive for issSpellStates.  These additional
+binaries are icon packs and additional campaign files to make it easy to install or setup issSpellStates in the same way
+as the distributed campaign file has it.
+
+#### Campaign Files
+Additional campaign files include:
+* Meleks_Simple_5e_v2.1_SpellStates.cmpgn.zip
+* S5e2.1_BoT_Spell_Mnstr_States.cmpgn.zip
+
+The first file is a campaign file for *Melek's Simple 5e* D&D 5th Edition Framework (Latest Version), modified to include 
+issSpellStates in a fully setup and functional form (including Campaign States with updated Icons and Properites).  This
+.cmpgn file is identical to the released *Simple 5e* campaign file except for the setup of issSpellStates already completed.
+
+If you like the simplicity of *Melek's Simple 5e* framework and are looking to maintain that, but want to include my Spell 
+States functionality this is a great place to start.  This is where you should start if you're looking to "build up"  your
+campaign with addons as you find you need them.
+
+The second file is a campaign file for *Melek's Simple 5e* D&D 5th Edition Framework (Latest Version) modified to include
+all of the following Addons / Integrations:
+* Bobifle's 5e SRD Monster Tokens
+* Merudo's Spell LIbrary for Melek's Simple 5e Framework (v1.1)
+* Wolph42's Bag of Tricks (b46)
+* Illydth's SpellStates (this archive) (Latest Version)
+
+Again, this file has all of the various campaign states, properties, icons, etc. all setup and functional for each of the 
+included addons to ensure the best functionality available out of all of the above addons.  This is actually the base campaign 
+file I use to develop my campaigns on since it includes all of the viable functionality available to the *Simple 5e* Framework.
+
+If you are an experienced Maptool campaign user/producer and want all available functionality for producing a new campaign for
+your group, this is a great place to start...it will save a good hour or so of hunting around and implementing the various bits
+and pieces for the *Simple 5e* framework.
+
+#### Icon Assets for Campaign States
+Included in the Releases Section is a grouping of icon assets by rogue_ronan from the Maptool Discord that were developed 
+explicitly to work with issSpellStates.  While any state icons are usable to fulfil the needed Campaign States for this
+framework, I suggest checking out the downloadable zip file of rogue_ronan's work. His icons are very coherent (even
+at small sizes) and all have a similar "look and feel" to them that I think creates a visually appealing and easy to 
+understand set of effects on a token.  You can check them out by downloading and opening the issSpellStates_Base.cmpgn 
+file as they are already implemented in it.
+
+
 ### Using issSpellStates
 Illydth's Spell States provides two very common capabilities to a tabletop campaign:  Searching for and displaying
 information related to a spell or ability and the capability of tracking the effects those abiltiies have on a target
@@ -109,7 +152,7 @@ Finally (as mentioned at the beginning of this Readme) if anyone would like to e
 (Pathfinder, Starfinder, Random RPG01, etc.) don't hesitate to let me know.  I would be happy to hop on discord with you
 and start you off on the right foot for how to make things easy for yourself when doing it.
 
-
 ----
 ## changelog
 * 19-Jun-2020 Initial Creation of this Readme
+* 20-Jun-2020 Minor Updates to Readme.MD for better Clarity, Included Section on Additional Available Assets.
