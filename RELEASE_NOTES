@@ -1,0 +1,34 @@
+--- v0.9.7-RC2 (6/20/2020) ---
+Updates to the following:
+* Overloaded APIs to allow no inputs (uses getSelected()), or to allow Token IDs to be passed to the API Functions.
+	This allows frameworks now to either run API macros on selected tokens, or to ignore selected tokens and have 
+	the apis run on input Token IDs.
+	
+* New API: isConcentrationEffect - Returns the "Concentration" flag from the table for the passed in Spell/Effect
+
+* Updated Camapaign Base Properties for issSpelStates to prepend "iss" to the front of them (issSpellBuffs and 
+	issSpellDebuffs now instead of spellBuffs and spellDebuffs).  This helps ensure no conflicts between existing
+	campaign properites and those I need for issSpellStates to work.
+	
+* Updated all Campaign States to consistent state groups for 5e campaign States.  Player Handbook states are now in
+	the "Conditions" category.  Additional states such as Raging and Inspiration which are part of the game but not
+	listed under official "conditions" are now tagged with the "Extended" category.  Finally, generic effects like
+	buffed, debuffed, resistance, and immunity are now in the "General" category.
+	
+* Created a new 5e Campaign States Macros Export file.  This file contains all of the reworked states buttons from 
+	the original "Melek's Simple 5e" D&D 5th Edition Framework, plus all additions needed for issSpellStates. These
+	macros are updated for button color and consistent output among all of them.
+	
+* Moved 5e spell table and 5e campaign state macors into their respective 5e directory.  The repository now contains
+	a directory for D&D 5th Edition (5e) so that other RPG Platforms can be stored alongside the 5e stuff for
+	issSpellStates.  Documentation updated to reflect this.
+	
+* Updated mtcode file to reflect current code set.
+
+* Significant updates to Documentation (README.MD, User_Manual.txt, Using_issSpellStates_by_Example.txt).
+
+* Token Version Update to v0.9.7-RC2.
+
+
+--- v0.9.5-RC1 (6/18/2020) ---
+Initial Release of issSpellStates.
