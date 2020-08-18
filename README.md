@@ -66,31 +66,18 @@ as the distributed campaign file has it.
 
 #### Campaign Files
 Additional campaign files include:
-* Meleks_Simple_5e_v2.1_SpellStates.cmpgn.zip
-* S5e2.1_BoT_Spell_Mnstr_States.cmpgn.zip
+* Meleks_Simple_5e_<version>_SpellStates.cmpgn.zip
+* Not-So-Simple5e_<version>.cmpgn.zip
 
 The first file is a campaign file for *Melek's Simple 5e* D&D 5th Edition Framework (Latest Version), modified to include 
 issSpellStates in a fully setup and functional form (including Campaign States with updated Icons and Properites).  This
 .cmpgn file is identical to the released *Simple 5e* campaign file except for the setup of issSpellStates already completed.
 
 If you like the simplicity of *Melek's Simple 5e* framework and are looking to maintain that, but want to include my Spell 
-States functionality this is a great place to start.  This is where you should start if you're looking to "build up"  your
+States functionality this is a great place to start.  This is where you should start if you're looking to "build up" your
 campaign with addons as you find you need them.
 
-The second file is a campaign file for *Melek's Simple 5e* D&D 5th Edition Framework (Latest Version) modified to include
-all of the following Addons / Integrations:
-* Bobifle's 5e SRD Monster Tokens
-* Merudo's Spell LIbrary for Melek's Simple 5e Framework (v1.1)
-* Wolph42's Bag of Tricks (b46)
-* Illydth's SpellStates (this archive) (Latest Version)
-
-Again, this file has all of the various campaign states, properties, icons, etc. all setup and functional for each of the 
-included addons to ensure the best functionality available out of all of the above addons.  This is actually the base campaign 
-file I use to develop my campaigns on since it includes all of the viable functionality available to the *Simple 5e* Framework.
-
-If you are an experienced Maptool campaign user/producer and want all available functionality for producing a new campaign for
-your group, this is a great place to start...it will save a good hour or so of hunting around and implementing the various bits
-and pieces for the *Simple 5e* framework.
+The second set of files is what i'm now referring to as "Not-So-Simple5e", see the sub-section on that below.
 
 #### Icon Assets for Campaign States
 Included in the Releases Section is a grouping of icon assets by rogue_ronan from the Maptool Discord that were developed 
@@ -157,7 +144,8 @@ and start you off on the right foot for how to make things easy for yourself whe
 ## Not-So-Simple5e
 
 As of the 1.0.1 release of issSpellStates, i'm beginning to publish a framework campaign file I call "Not-So-Simple5e" which
-is a tongue-in-cheek name for a campaign file baseed off of Melek's Simple5e 5th Edition Framework.  
+is a tongue-in-cheek name for a campaign file baseed off of Melek's Simple5e 5th Edition Framework that I have "polluted"
+with pretty much every addon intended to work with Simple5e.  
 
 Melek's framework is intended to be light-weight and easy to hack into and modify, leaving out Lib:Tokens and many of the 
 complexities of modern MapTool Frameworks with an intent to make it approachable for new users and MapTool Scripting initiates.
@@ -168,7 +156,7 @@ Even though it was developed for newer users, I find Simple5e's approach to toke
 looking for from a complexity vs. tuning capability for my own campaign, even though I have some fairly extensive scripting 
 experience in MapTool at this point I still find this Framework to be the "Goldilocks" of 5e Frameworks for me.
 
-And that left me poluting his "Simple" frameowrk with a boatload of COMPLEX addons and drop-ins for functionality I wanted
+And that left me poluting his "Simple" framework with a boatload of COMPLEX addons and drop-ins for functionality I wanted
 within my campaign file.  The end result is still a very simple framework but with lots of addon tooling that makes things 
 LOOK very complicated with a lot of features and functionality for some very complex capabilties...leaving it not exactly 
 "new user friendly".
