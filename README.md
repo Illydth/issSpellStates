@@ -135,6 +135,7 @@ See the User_Manual.txt file for a listing of all APIs and their effects.
 
 ----
 ## Documentation and Opening Issues
+
 If you have any questions or are seeing any problems while using the system, please consider looking through the relevant
 information in the User_Manual.txt file.  Many questions are answered there and much of the information is laid out such
 that there's no need to read the whole manual just to find an answer to your single question.  
@@ -153,8 +154,49 @@ Finally (as mentioned at the beginning of this Readme) if anyone would like to e
 and start you off on the right foot for how to make things easy for yourself when doing it.
 
 ----
+## Not-So-Simple5e
+
+As of the 1.0.1 release of issSpellStates, i'm beginning to publish a framework campaign file I call "Not-So-Simple5e" which
+is a tongue-in-cheek name for a campaign file baseed off of Melek's Simple5e 5th Edition Framework.  
+
+Melek's framework is intended to be light-weight and easy to hack into and modify, leaving out Lib:Tokens and many of the 
+complexities of modern MapTool Frameworks with an intent to make it approachable for new users and MapTool Scripting initiates.
+[Melek's Simple5e](https://github.com/melek/Simple5e) - You should ABSOLUTELY go check it out, it is a phenominal place to
+start learning all about Maptool's scripting language.
+
+Even though it was developed for newer users, I find Simple5e's approach to token management and macros exaclty what I was 
+looking for from a complexity vs. tuning capability for my own campaign, even though I have some fairly extensive scripting 
+experience in MapTool at this point I still find this Framework to be the "Goldilocks" of 5e Frameworks for me.
+
+And that left me poluting his "Simple" frameowrk with a boatload of COMPLEX addons and drop-ins for functionality I wanted
+within my campaign file.  The end result is still a very simple framework but with lots of addon tooling that makes things 
+LOOK very complicated with a lot of features and functionality for some very complex capabilties...leaving it not exactly 
+"new user friendly".
+
+This framework campaign file brings together all of the tools that have been written for and work with Simple5e into one
+fully featured campaign file including:
+
+* Lib:issSpellStates (this Library)
+* Lib:imcMonsterCreator (my other Drop-In for Creating Monsters)
+* Lib:Addon5e - A Library supporting bobifle's 5e SRD monster tokens.
+* Lib:SpellLibrary - Merudo's Spell Library and Spell Casting System for Simple5e.
+* Bag of Tricks (46) - Wolph42's Bag of Tricks Drop in Functionality Addtion for MapTool
+
+All functionality for all pieces (such as Bag of Tricks) are installed and up to date in my "Not-So-Simple5e" file.  If 
+you are an experienced DM who still likes the Simple5e system but wants something more fully featured to work with either as
+a starting point for your own campaign or to build onto for your own framework, Not-So-Simple5e is a good starting place that
+can save you a couple hours of time getting everything downloaded and setup.
+
+The work of each individual author of each individual library and piece of this campaign file is their own unique contribution
+to the MapTool community, and should be recognized as such.  I am simply packaging these unique works into a common collection
+that should work together all in a reasonable way.  I'm happy to answer questions on that packaging, but support for each piece
+should be addressed to the individual authors.
+
+
+----
 ## changelog
 * 19-Jun-2020 Initial Creation of this Readme
 * 20-Jun-2020 Minor Updates to Readme.MD for better Clarity, Included Section on Additional Available Assets.
 * 17-Aug-2020 1.0 Release of issSpellStates.
 	- Last Version to supply Simple5e_2.1 files.
+	- Added Not-So-Simple5e v2.1 and v2.2.1 files.
