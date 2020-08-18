@@ -66,8 +66,8 @@ as the distributed campaign file has it.
 
 #### Campaign Files
 Additional campaign files include:
-* Meleks_Simple_5e_<version>_SpellStates.cmpgn.zip
-* Not-So-Simple5e_<version>.cmpgn.zip
+* Meleks_Simple_5e_{version}_SpellStates.cmpgn.zip
+* Not-So-Simple5e_{version}.cmpgn.zip
 
 The first file is a campaign file for *Melek's Simple 5e* D&D 5th Edition Framework (Latest Version), modified to include 
 issSpellStates in a fully setup and functional form (including Campaign States with updated Icons and Properites).  This
