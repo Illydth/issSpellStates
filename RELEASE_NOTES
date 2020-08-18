@@ -1,3 +1,18 @@
+--- v1.0.0 (8/17/2020) ---
+Several minor updates:
+* Removed player edit on many macros, including all 4 of the campaign macros to stop errors coming from players using 
+	the tools.  If you get any errors with players using the "Get Token States" macro, you'll want to make sure that
+	all of the macros in the chain have "edit by player" turned off.  If anything returns a "can't do that" to you
+	please file an issue on GitHub for it.
+
+* New API: showSpellInfo - Supports MonsterCreator and other outside Drop-Ins that want to hook spell effects and 
+	open the spell in the Spell Lookup window.
+	
+* New ICON for issSpellStates - *shrug* Sure, it's an update right? :)
+
+This is the first actual release of the software.  Please file any bugs / requests with Issues on GitHub.
+
+
 --- v0.9.7-RC2 (6/20/2020) ---
 Updates to the following:
 * Overloaded APIs to allow no inputs (uses getSelected()), or to allow Token IDs to be passed to the API Functions.

@@ -24,6 +24,7 @@ Campaign States List
 * Exhaustion 3			Exhaustion			Dot (SW)
 * Exhaustion 4			Exhaustion			Dot (SW)
 * Exhaustion 5			Exhaustion			Dot (SW)
+* Flying				Extended			Circle (Light Blue)
 * Frightened			Conditions			3x3
 * Grappeled				Conditions			3x3
 * Hasted				General				3x3

@@ -156,3 +156,4 @@ and start you off on the right foot for how to make things easy for yourself whe
 ## changelog
 * 19-Jun-2020 Initial Creation of this Readme
 * 20-Jun-2020 Minor Updates to Readme.MD for better Clarity, Included Section on Additional Available Assets.
+* 17-Aug-2020 1.0 Release of issSpellStates.
