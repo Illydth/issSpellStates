@@ -37,7 +37,7 @@ It is recommended to change the prefix to avoid conflict with other lib tokens.
 
 !!
 @@ @DM States Toolbox
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Displays the "DM States Toolbox" Dialog to add/remove spell effects from the SpellStates Toolbox.<br>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Displays the "DM States Toolbox" Dialog to add/remove spell effects from the SpellStates Toolbox.<br> ; minWidth=180px
 <br>
 Runs the "openStatesToolbox" macro in the Spell States Toolbox section on Lib:SpellStates.</html> ; minWidth=180px
 [h: sBuff = ""]
@@ -50,76 +50,12 @@ Runs the "openStatesToolbox" macro in the Spell States Toolbox section on Lib:Sp
 
 !!
 @@ @Get Token Effects
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=orange ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip= ; minWidth=180 px
-[h: campaignStateText = "Campaign States"]
-[h: buffText = "Buffs"]
-[h: debuffText = "Debuffs"]
-
-[h: ids = getSelected("json")]
-[r, foreach(id, ids, ",", "json"), CODE:
-{
-	[h: buffHTML = ""]
-	[h: debuffHTML = ""]
-	[h: tokenName = getName(id)]
-	[h: buffEffListParams = json.append("", id, 1, 0)]
-	[h, macro("getTokenEffectsList@Lib:issSpellStates"): buffEffListParams]
-	[h: buffList = macro.return]
-	[h: debuffEffListParams = json.append("", id, 0, 1)]
-	[h, macro("getTokenEffectsList@Lib:issSpellStates"): debuffEffListParams]
-	[h: debuffList = macro.return]
-	[h, foreach(spellNum, buffList), CODE:
-	{
-		[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
-		[h: spellRecord = macro.return]
-		[h: spellAll = json.get(spellRecord, spellNum)]
-		[h: spellName = json.get(spellAll, "Name")]
-		[h: buffDur = json.get(buffList, spellNum)]
-		[h: passedVars = json.set("{}", "spellName", spellName)]
-		[h: buffHTML = buffHTML + macroLink(spellName + " (" + 
-		  buffDur + ")", "openSpellLookup@Lib:issSpellStates", "none", passedVars) + 
-		  ", "]
-	}]
-	[h, foreach(spellNum, debuffList), CODE:
-	{
-		[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
-		[h: spellRecord = macro.return]
-		[h: spellAll = json.get(spellRecord, spellNum)]
-		[h: spellName = json.get(spellAll, "Name")]
-		[h: debuffDur = json.get(debuffList, spellNum)]
-		[h: passedVars = json.set("{}", "spellName", spellName)]
-		[h: debuffHTML = debuffHTML + macroLink(spellName + " (" + 
-			debuffDur + ")", "openSpellLookup@Lib:issSpellStates", "none", 
-			passedVars) + ", "]
-	}]
-
-	[h: tokenStates = getTokenStates(",", "*", id)]
-
-	<div style="background-color: #0B10E7; color: #FFFFFF; padding-top:2px; padding-bottom:5px; padding-left:8px; padding-right:8px;">
-		<b>Current State ({tokenName})</b>
-		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
-			<div style="background-color:#000000; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
-				<i>{campaignStateText}</i>
-			</div>
-			{tokenStates}
-		</div>
-		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
-			<div style="background-color:#06CB14; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
-				<i>{buffText}</i>
-			</div>
-			{buffHTML}
-		</div>
-		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
-			<div style="background-color:#DE0728; color: #000000; padding:2px; margin-bottom:-5px;">
-				<i>{debuffText}</i>
-			</div>
-			{debuffHTML}
-		</div>	
-	</div>
-}]
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=orange ; playerEditable=false ; applyToSelected=1 ; group=Campaign Buttons ; tooltip= ; minWidth=180 px
+[r, macro("displayTokenEffects@Lib:issSpellStates"): "none"]
 
 !!
 @@ @Lookup Spell Info
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Prompts for Spell to Look Up and Opens the Spell Information Window to that Spell.<br>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Prompts for Spell to Look Up and Opens the Spell Information Window to that Spell.<br> ; minWidth=180 px
 <br>
 Opens the "displaySpellLookup" macro in the "Spell Lookup" section of Lib:SpellStates.</html> ; minWidth=180 px
 [h: spellName = "No Spell Found"]
@@ -128,326 +64,14 @@ Opens the "displaySpellLookup" macro in the "Spell Lookup" section of Lib:SpellS
 
 !!
 @@ @States Management Form
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Displays the "States Management" Dialog to add/remove spell effects from Tokens.<br>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.10em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Campaign Buttons ; tooltip=<html>Displays the "States Management" Dialog to add/remove spell effects from Tokens.<br> ; minWidth=180px
 <br>
 Runs the "openStatesMgt" macro in the DM States Management section on Lib:SpellStates.</html> ; minWidth=180px
 [h, macro("openStatesMgt@lib:issSpellStates"): "all"]
 
 !!
-@@ @Function Test Harness
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy=1 ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip=Perform Standard Testing on General Function Macros ; minWidth=
-<h2>******************* TEST RUN **********************</h2>
-<ul>
-[spellNum = 3]
-[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
-[h: spellData = macro.return]
-
-<li>Good: GetSpellByNum(3): [r: spellData]</li>
-
-[spellNum = 100]
-[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
-[h: spellData = macro.return]
-
-<li>Bad: GetSpellByNum(100): [r: spellData]</li>
-
-[spellNum = 3]
-[h, macro("getSpellNameByNum@Lib:issSpellStates"): spellNum]
-[h: spellData = macro.return]
-
-<li>Good: GetSpellNameByNum(3): [r: spellData]</li>
-
-[spellNum = 100]
-[h, macro("getSpellNameByNum@Lib:issSpellStates"): spellNum]
-[h: spellData = macro.return]
-
-<li>Bad: GetSpellNameByNum(100): [r: spellData]</li>
-
-[spellName = "Mage Armor"]
-[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
-[h: spellData = macro.return]
-
-<li>Good: GetSpellNumByName(Mage Armor): [r: spellData]</li>
-
-[spellName = "Junk"]
-[h, macro("getSpellNumByName@Lib:issSpellStates"): spellName]
-[h: spellData = macro.return]
-
-<li>Bad: GetSpellNumByName(Junk): [r: spellData]</li>
-
-[spellName = "Mage Armor"]
-[h, macro("getSpellByName@Lib:issSpellStates"): spellName]
-[h: spellData = macro.return]
-
-<li>Good: GetSpellByName(Mage Armor): [r: spellData]</li>
-
-[spellName = "Junk"]
-[h, macro("getSpellByName@Lib:issSpellStates"): spellName]
-[h: spellData = macro.return]
-
-<li>Bad: GetSpellByName(Junk): [r: spellData]</li>
-
-[inData = json.set("{}", 15, "Hex", "optRefSpellDur", 0)]
-[macro("testapplySpellEffect@Lib:issSpellStates"): inData]
-[h: spellData = macro.return]
-
-</ul>
-<h2>************************** TEST RUN COMPLETE **************************</h2>
-
-!!
-@@ @label
-@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
-[H: label = arg(0)]
-[dialog("Label"): {[r: label]}]
-
-!!
-@@ @pause
-@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
-[H: sub_numVars = argCount()]
-[H: sub_vars = "{}"]
-[H, for(sub_i,0,sub_numVars): sub_vars = json.set(sub_vars,arg(sub_i),eval(arg(sub_i)))]
-[H: sub_names = json.fields(sub_vars," ")]
-
-[H: sub_output = "<pre>"+json.indent(replace(sub_vars,"<","&lt;"))+"</pre>"]
-[H: sub_output = replace(sub_output,decode("%0A"),"<br>")]
-[H: sub_output = replace(sub_output,"     ","&nbsp;&nbsp;&nbsp;")]
-[H: sub_output = replace(sub_output,"#","&#35")]
-[H: sub_output = replace(sub_output,"\\|","&#124")]
-[H: sub_output.proxy = replace(sub_output,"asset:","image:")]
-
-[H: continue = input(strformat("Pause: %{sub_names}|<html><div width=800>%{sub_output.proxy}</div></html>||label|span=true"))]
-[H, if(! continue), code: {
-   [dialog("Pause: "+sub_names): {[r: strformat("<html><div width=800>%{sub_output}</div></html>")]}]
-   [H: abort(0)]
-};{}]
-
-!!
-@@ @watch
-@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
-[H: sub_numVars = argCount()]
-[H: sub_vars = "{}"]
-[H, for(sub_i,0,sub_numVars): sub_vars = json.set(sub_vars,arg(sub_i),eval(arg(sub_i)))]
-[H: sub_names = json.fields(sub_vars," ")]
-[H: sub_output = replace(json.indent(replace(sub_vars,"<","&lt;")),decode("%0A"),"<br>")]
-[H: sub_output = replace(sub_output,"     ","&nbsp;&nbsp;&nbsp;")]
-[dialog("Watch: "+sub_names): {[r: strformat("<html><div width=800>%{sub_output}</div></html>")]}]
-
-!!
-@@ @PrintDisplayLayout
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=1 ; group=ZZZ-Saved Code ; tooltip= ; minWidth=
-/me
-[h: campaignStateText = "Campaign States"]
-[h: buffText = "Buffs"]
-[h: debuffText = "Debuffs"]
-
-<div style="background-color: #0B10E7; color: #FFFFFF; padding-top:2px; padding-bottom:5px; padding-left:8px; padding-right:8px;">
-	<b>Current State</b>
-	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
-		<div style="background-color:#000000; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
-			<i>{campaignStateText}</i>
-		</div>
-		<b>Reaction:</b> Reduce any falling damage you take by an amount.
-	</div>
-	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
-		<div style="background-color:#06CB14; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
-			<i>{buffText}</i>
-		</div>
-		<b>Reaction:</b> Reduce any falling damage you take by an amount.
-	</div>
-	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
-		<div style="background-color:#DE0728; color: #000000; padding:2px; margin-bottom:-5px;">
-			<i>{debuffText}</i>
-		</div>
-		<b>Reaction:</b> Reduce any falling damage you take by an amount.
-	</div>	
-</div>
-
-!!
-@@ @PrintDisplayTesting
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=1 ; group=ZZZ-Saved Code ; tooltip= ; minWidth=
-/me
-[h: campaignStateText = "Campaign States"]
-[h: buffText = "Buffs"]
-[h: debuffText = "Debuffs"]
-
-<div style="background-color: #0B10E7; color: #FFFFFF; padding-top:2px; padding-bottom:5px; padding-left:8px; padding-right:8px;">
-	<b>Current State</b>
-	<div style="background-color:#A1AAA1; color: #000000; padding:2px;">
-		<div style="background-color:#000000; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
-			<i>{campaignStateText}</i>
-		</div>
-		<b>Reaction:</b> Reduce any falling damage you take by an amount.
-	</div>
-	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
-		<div style="background-color:#06CB14; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
-			<i>{buffText}</i>
-		</div>
-		<b>Reaction:</b> Reduce any falling damage you take by an amount.
-	</div>
-	<div style="background-color:#FFFFFF; color: #000000; padding:2px;">
-		<div style="background-color:#DE0728; color: #000000; padding:2px; margin-bottom:-5px;">
-			<i>{debuffText}</i>
-		</div>
-		<b>Reaction:</b> Reduce any falling damage you take by an amount.
-	</div>	
-</div>
-
-!!
-@@ @cssExampleCode
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Saved Code ; tooltip= ; minWidth=
-.spellButtonClickExample {
-    display: inline-block;
-	background-color: #e7e7e7; /* Button Background Color */
-	color: black; /* Button Font Color */
-	border: none;
-	text-align: center;
-	text-decoration: none;
-	font-size: 10px; /* Button Size */
-	border-radius: 2px; /* 2px = Square Button, 15px = Rounded Button */
-	width: 85px; /* Button Width, Setup for 5 button columns in a 500ish px frame */
-	cursor: pointer;
-	border: 2px solid #4CAF50; /* Green */
-}
-
-.spellButtonClickExample:hover {
-  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
-}
-
-.spellButtonClickExample:active {
-  background-color: #4CAF50;
-  box-shadow: 0 5px #666; /* Gray Shadow as Button is Pushed */
-  transform: translateY(4px);
-}
-
-!!
-@@ @displaySpellLookup
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Saved Code ; tooltip=<html>Prompt User for Spell to Look Up and Open the Spell Info Dialog.<br>
-<br>
-Provides Main Routine for Spell Lookup Functionality.<br>
-<ul>
-<li>Parameters: None</li>
-<li>Returns: None</li>
-<li>Input: Spell Name</li>
-</ul>
-Acknowledgements:<br>
-<ul>
-<li>KellENDER</li>
-<li>Jason_c_o</li>
-<li>Illydth</li>
-</ul></html>
- ; minWidth=
-[h: spellCount = 1]
-[h: stopSearch = 0]
-[h:status=input(
-    "Spell|0|Spell Name?")]
-[h:abort(status)]
-[h: SpellToFind = Spell]
-
-[h: rowCount = getTablePicksLeft("issSpellStates")]
-
-[h, while(stopSearch == 0 && spellCount <= rowCount), CODE:
-{
-    [tblRecord = getTableEntry("issSpellStates", spellCount)]
-    [SpellAll = json.get(tblRecord, "value")]
-    [SpellName = json.get(SpellAll, "Name")]
-    [if(SpellName == SpellToFind), CODE:
-    {
-        [FoundSpell = spellCount]
-        [stopSearch = 1]
-    };
-    {}]     
-    [spellCount = spellCount + 1]
-}]
-
-[if(StopSearch == 0), CODE:
-{
-    [h: SpellName = "Spell Search Failed - <b>Spell Not Found!</b>"]
-	[h: SpellSrc = ""]
-	[h: SpellLevel = ""]
-	[h: SpellCT = ""]
-	[h: SpellDur = ""]
-	[h: SpellSch = ""]
-	[h: SpellRange = ""]
-	[h: SpellComp = ""]
-	[h: SpellClass = ""]
-	[h: SpellTxt = ""]
-	[h: SpellAHL = ""]    
-};
-{
-	[h: tblRecord = getTableEntry("Spells", FoundSpell)]
-	[h: SpellAll = json.get(tblRecord, "value")]
-	[h: SpellSrc = json.get(SpellAll, "Source")]
-	[h: SpellLevel = json.get(SpellAll, "Level")]
-	[h: SpellCT = json.get(SpellAll, "Casting Time")]
-	[h: SpellDur = json.get(SpellAll, "Duration")]
-	[h: SpellSch = json.get(SpellAll, "School")]
-	[h: SpellRange = json.get(SpellAll, "Range")]
-	[h: SpellComp = json.get(SpellAll, "Components")]
-	[h: SpellClass = json.get(SpellAll, "Classes")]
-	[h: SpellTxt = json.get(SpellAll, "Text")]
-	[h: SpellAHL = json.get(SpellAll, "At Higher Levels")]    
-}]
-
-[frame("Spell Lookup"): {
-  <html>
-    <head>
-      <title>Spell Information</title>
-    </head>
-    <body>
-     <table>
-      <tr>
-       <td><b>Spell Name</b></td>
-       <td>[r:SpellName]</td>
-      </tr>
-      <tr>
-       <td><b>Source Book</b></td>
-       <td>[r:SpellSrc]</td>
-      </tr>
-      <tr>
-       <td><b>Level</b></td>
-       <td>[r:SpellLevel]</td>
-      </tr>
-      <tr>
-       <td><b>Casting Time</b></td>
-       <td>[r:SpellCT]</td>
-      </tr>
-      <tr>
-       <td><b>Duration</b></td>
-       <td>[r:SpellDur]</td>
-      </tr>
-      <tr>
-       <td><b>School</b></td>
-       <td>[r:SpellSch]</td>
-      </tr>
-      <tr>
-       <td><b>Range</b></td>
-       <td>[r:SpellRange]</td>
-      </tr>
-      <tr>
-       <td><b>Components</b></td>
-       <td>[r:SpellComp]</td>
-      </tr>
-      <tr>
-       <td><b>Class</b></td>
-       <td>[r:SpellClass]</td>
-      </tr>
-      <tr>
-       <td><b>Spell Text</b></td>
-       <td>[r:SpellTxt]</td>
-      </tr>
-      <tr>
-       <td><b>At Higher Levels</b></td>
-       <td>[r:SpellAHL]</td>
-      </tr>
-     </table>
-     <br>
-     [macroLink("New Spell", "displaySpellLookup@Lib:issSpellStates")]
-    </body>
-  </html>
-}]
-
-!!
 @@ @addEffectToToken
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html> ; minWidth=
 Adds the Passed in Spell Effect to the Token, or Resets Duration on spell if already applied.<br>
 <br>
 If the spell effect passed does not set an effect, this becomes a no-operation.<br>
@@ -490,7 +114,7 @@ accordingly.</i><br>
 
 !!
 @@ @clearEffectsFromToken
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html> ; minWidth=
 Removes all applied spell effects (beneficial and determental) from the selected token or
 tokens.<br>
 <br>
@@ -536,7 +160,7 @@ accordingly.</i><br>
 
 !!
 @@ @decrementSpellDuration
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html> ; minWidth=
 Decrements the "remaining spell duration counter" on applied effects on
 any selected token.<br>
 <br>
@@ -583,7 +207,7 @@ campaign frameworks in the case it&#39;s useful.</i>
 
 !!
 @@ @getEffectsOnToken
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html> ; minWidth=
 Returns a JSON Listing of all spell effects currently on the token or tokens selected.<br>
 See Below for the JSON Format.<br>
 <br>
@@ -667,10 +291,10 @@ See Below for the JSON Format.<br>
 
 !!
 @@ @isConcentrationEffect
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html> ; minWidth=
 Checks if the passed in effect is a concentration effect or not.<br>
 More generically, this API allows validation of whether a spell or effect is exclusionary
-of other spells or effects.<br>This checks the "concentration" flag on the spell in the database to determine if it's set.<br>
+of other spells or effects.<br>This checks the "concentration" flag on the spell in the database to determine if it is set.<br>
 <br>
 <b>Inputs:</b>
 <ul>
@@ -696,7 +320,7 @@ of other spells or effects.<br>This checks the "concentration" flag on the spell
 
 !!
 @@ @isEffectOnToken
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html> ; minWidth=
 Checks for the passed in spell effect on the token, returns 1 if there, 0 if not and<br>
 2 if more than one token is selected.<br>
 <br>
@@ -748,7 +372,7 @@ is passed to the function at once, a 2 is returned to identify incorrect usage.<
 
 !!
 @@ @removeEffectFromToken
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html> ; minWidth=
 Removes the Passed in Spell Effect from the Token if it exists as an effect currently on the token.<br> This has no effect on a Token for which the state isn&#39;t set or for a spell 
 effect that does not set or remove states.<br>
 <br>
@@ -789,8 +413,26 @@ accordingly.</i><br>
 }]
 
 !!
+@@ @showSpellInfo
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-API Hooks ; tooltip=<html> ; minWidth=
+Opens the Spell Lookup pannel to the passed in Spell.<br>
+<br>
+<b>Inputs:</b>
+<ul>
+<li>(0) - SpellName - The Name of the Spell to Display.</li>
+</ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+<br>
+<i>Note: This is an "API" call, intended to be called from another framework capability such as a button to cast a spell.<br> No functionality within "SpellStates" exists that uses this functionality.  It is being provided for use by campaign frameworks<br>in the case it&#39;s useful.</i>
+</html> ; minWidth=
+[h: spellName = macro.args]
+[h: passedVars = json.set("{}", "spellName", spellName)]
+[h, macro("openSpellLookup@Lib:issSpellStates"): passedVars]
+
+!!
 @@ @addResetTokenEffect
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html> ; minWidth=
 Adds the Passed in Spell Effect to the Token, or Resets Token to Initial Duration.<br>
 <br>
 <b>Inputs:</b>
@@ -836,7 +478,7 @@ Adds the Passed in Spell Effect to the Token, or Resets Token to Initial Duratio
 
 !!
 @@ @decrementTimer
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html> ; minWidth=
 Decrements the Spell Duration Timer on passed in spell effects list.<br>
 <br>
 <b>Inputs:</b>
@@ -859,6 +501,83 @@ other functionality within issSpellStates.</i><br>
 	};{}]
 }]
 [h: macro.return = effectsList]
+
+!!
+@@ @displayTokenEffects
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=1 ; group=YYY-General Functions ; tooltip=<html> ; minWidth=
+Creates a box in game chat displaying the current status of a token.<br>
+<br>
+<b>Inputs:</b>
+<ul><li>N/A</li></ul>
+<b>Outputs:</b>
+<ul><li>N/A</li></ul>
+<br>
+</html> ; minWidth=
+[h: campaignStateText = "Campaign States"]
+[h: buffText = "Buffs"]
+[h: debuffText = "Debuffs"]
+
+[h: ids = getSelected("json")]
+[r, foreach(id, ids, ",", "json"), CODE:
+{
+	[h: buffHTML = ""]
+	[h: debuffHTML = ""]
+	[h: tokenName = getName(id)]
+	[h: buffEffListParams = json.append("", id, 1, 0)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): buffEffListParams]
+	[h: buffList = macro.return]
+	[h: debuffEffListParams = json.append("", id, 0, 1)]
+	[h, macro("getTokenEffectsList@Lib:issSpellStates"): debuffEffListParams]
+	[h: debuffList = macro.return]
+	[h, foreach(spellNum, buffList), CODE:
+	{
+		[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+		[h: spellRecord = macro.return]
+		[h: spellAll = json.get(spellRecord, spellNum)]
+		[h: spellName = json.get(spellAll, "Name")]
+		[h: buffDur = json.get(buffList, spellNum)]
+		[h: passedVars = json.set("{}", "spellName", spellName)]
+		[h: buffHTML = buffHTML + macroLink(spellName + " (" + 
+		  buffDur + ")", "openSpellLookup@Lib:issSpellStates", "none", passedVars) + 
+		  ", "]
+	}]
+	[h, foreach(spellNum, debuffList), CODE:
+	{
+		[h, macro("getSpellByNum@Lib:issSpellStates"): spellNum]
+		[h: spellRecord = macro.return]
+		[h: spellAll = json.get(spellRecord, spellNum)]
+		[h: spellName = json.get(spellAll, "Name")]
+		[h: debuffDur = json.get(debuffList, spellNum)]
+		[h: passedVars = json.set("{}", "spellName", spellName)]
+		[h: debuffHTML = debuffHTML + macroLink(spellName + " (" + 
+			debuffDur + ")", "openSpellLookup@Lib:issSpellStates", "none", 
+			passedVars) + ", "]
+	}]
+
+	[h: tokenStates = getTokenStates(",", "*", id)]
+
+	<div style="background-color: #0B10E7; color: #FFFFFF; padding-top:2px; padding-bottom:5px; padding-left:8px; padding-right:8px;">
+		<b>Current State ({tokenName})</b>
+		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
+			<div style="background-color:#000000; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
+				<i>{campaignStateText}</i>
+			</div>
+			{tokenStates}
+		</div>
+		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
+			<div style="background-color:#06CB14; color: #FFFFFF; padding:2px; margin-bottom:-5px;">
+				<i>{buffText}</i>
+			</div>
+			{buffHTML}
+		</div>
+		<div style="background-color:#CCD1CF; color: #000000; padding:2px;">
+			<div style="background-color:#DE0728; color: #000000; padding:2px; margin-bottom:-5px;">
+				<i>{debuffText}</i>
+			</div>
+			{debuffHTML}
+		</div>	
+	</div>
+}]
 
 !!
 @@ @getSpellByName
@@ -965,7 +684,7 @@ other functionality within issSpellStates.</i><br>
 
 !!
 @@ @getTokenEffectsList
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html> ; minWidth=
 Returns a list of Buff or Debuff effects on a token based upon buff/debuff parameters.<br>
 <br>
 <b>Parameters:</b>
@@ -997,7 +716,7 @@ Returns a list of Buff or Debuff effects on a token based upon buff/debuff param
 
 !!
 @@ @refreshTokenEffectCounter
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html> ; minWidth=
 Refreshes the duration counter for the spell passed to the macro to the starting duration<br>
 as noted on the incoming spell.<br>
 <br>
@@ -1038,7 +757,7 @@ as noted on the incoming spell.<br>
 
 !!
 @@ @removeTokenEffect
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=YYY-General Functions ; tooltip=<html> ; minWidth=
 Removes the Passed in Spell Effect from the Token.<br>
 <br>
 <b>Inputs:</b>
@@ -1191,7 +910,7 @@ Output JSON:
 
 !!
 @@ @applySpellEffect
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html> ; minWidth=
 Adds or Removes the passed in spell effects from the tokens selected.<br>
 <br>
 <b>Inputs:</b>
@@ -1258,7 +977,7 @@ is removed.</li>
 
 !!
 @@ @openStatesMgt
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html> ; minWidth=
 Opens/Displays a Dialog5 Form for the States Management System.<br>
 Passes control to statesMgtForm to actually draw the Management Form.<br>
 <br>
@@ -1287,7 +1006,7 @@ Passes control to statesMgtForm to actually draw the Management Form.<br>
 
 !!
 @@ @statesMgtForm
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=DM States Management ; tooltip=<html> ; minWidth=
 Creates the Actual States Management Form including all Data.<br>
 Displayed by openStatesMgt.<br>
 <br>
@@ -1562,7 +1281,7 @@ HTML Form Calls / Macro Calls:<br><ul>
 
 !!
 @@ @clearToolbox
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html> ; minWidth=
 Remove all Spells Stored in the Toolbox.<br>
 <br>
 <ul>
@@ -1606,7 +1325,7 @@ Remove all Spells Stored in the Toolbox.<br>
 
 !!
 @@ @findToolboxSpell
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>Find Spell in Table by Name, Return Name, Number, and Beneficia/Determental Mark<br>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>Find Spell in Table by Name, Return Name, Number, and Beneficia/Determental Mark<br> ; minWidth=
 <br>
 <ul>
 <li>Parameters: <b>spellName</b></li>
@@ -1643,7 +1362,7 @@ Remove all Spells Stored in the Toolbox.<br>
 
 !!
 @@ @getToolboxSpellList
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html> ; minWidth=
 Return JSON Object of all Spells Stored on SpellList Property of Toolbox.<br>
 <br>
 <ul>
@@ -1670,7 +1389,7 @@ Return JSON Object of all Spells Stored on SpellList Property of Toolbox.<br>
 
 !!
 @@ @openStatesToolbox
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html> ; minWidth=
 Opens/Displays a Dialog5 Form for the DM States Toolbox.<br>
 Passes control to statesToolboxForm to actually draw the toolbox form.<br>
 <br>
@@ -1699,7 +1418,7 @@ Passes control to statesToolboxForm to actually draw the toolbox form.<br>
 
 !!
 @@ @removeToolboxSpell
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html> ; minWidth=
 Remove a Selected Spell Stored in the Toolbox.<br>
 <br>
 <ul>
@@ -1739,7 +1458,7 @@ Remove a Selected Spell Stored in the Toolbox.<br>
 
 !!
 @@ @statesToolboxForm
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html> ; minWidth=
 Creates the Actual DM States Toolbox Form including all Data.<br>
 Displayed by openStatesToolbox.<br>
 <br>
@@ -1889,7 +1608,7 @@ HTML Form Calls / Macro Calls:<br><ul>
     </table>
     </form>
     <br><br>
-    [macroLink("Clear Toolbox", "clearToolbox@Lib:issSpellStates")]
+    [t: macroLink("Clear Toolbox", "clearToolbox@Lib:issSpellStates")]
 
 !!
 @@ @statesToolboxFormCSS
@@ -1939,7 +1658,7 @@ table, tr, td {
 
 !!
 @@ @storeToolboxSpell
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell States Toolbox ; tooltip=<html> ; minWidth=
 Stores a Spell to the Toolbox.  Takes a Number and Name, stores number.<br>
 <br>
 <ul>
@@ -1976,6 +1695,44 @@ Stores a Spell to the Toolbox.  Takes a Number and Name, stores number.<br>
 
 [h: passedVars = json.append( "", sBuff, sDebuff, spellName, spellNum )]
 [h, macro("openStatesToolbox@lib:issSpellStates"): passedVars]
+
+!!
+@@ @label
+@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
+[H: label = arg(0)]
+[dialog("Label"): {[r: label]}]
+
+!!
+@@ @pause
+@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
+[H: sub_numVars = argCount()]
+[H: sub_vars = "{}"]
+[H, for(sub_i,0,sub_numVars): sub_vars = json.set(sub_vars,arg(sub_i),eval(arg(sub_i)))]
+[H: sub_names = json.fields(sub_vars," ")]
+
+[H: sub_output = "<pre>"+json.indent(replace(sub_vars,"<","&lt;"))+"</pre>"]
+[H: sub_output = replace(sub_output,decode("%0A"),"<br>")]
+[H: sub_output = replace(sub_output,"     ","&nbsp;&nbsp;&nbsp;")]
+[H: sub_output = replace(sub_output,"#","&#35")]
+[H: sub_output = replace(sub_output,"\\|","&#124")]
+[H: sub_output.proxy = replace(sub_output,"asset:","image:")]
+
+[H: continue = input(strformat("Pause: %{sub_names}|<html><div width=800>%{sub_output.proxy}</div></html>||label|span=true"))]
+[H, if(! continue), code: {
+   [dialog("Pause: "+sub_names): {[r: strformat("<html><div width=800>%{sub_output}</div></html>")]}]
+   [H: abort(0)]
+};{}]
+
+!!
+@@ @watch
+@PROPS@ fontColor=white ; autoExecute=true ; fontSize=11pt ; sortBy= ; color=navy ; playerEditable=true ; applyToSelected=0 ; group=ZZZ-Debug ; tooltip= ; minWidth=94
+[H: sub_numVars = argCount()]
+[H: sub_vars = "{}"]
+[H, for(sub_i,0,sub_numVars): sub_vars = json.set(sub_vars,arg(sub_i),eval(arg(sub_i)))]
+[H: sub_names = json.fields(sub_vars," ")]
+[H: sub_output = replace(json.indent(replace(sub_vars,"<","&lt;")),decode("%0A"),"<br>")]
+[H: sub_output = replace(sub_output,"     ","&nbsp;&nbsp;&nbsp;")]
+[dialog("Watch: "+sub_names): {[r: strformat("<html><div width=800>%{sub_output}</div></html>")]}]
 
 !!
 @@ @output
@@ -2078,7 +1835,7 @@ Example Call:
 
 !!
 @@ @openSpellLookup
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell Lookup ; tooltip=<html>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=true ; applyToSelected=0 ; group=Spell Lookup ; tooltip=<html> ; minWidth=
 Opens the Spell Lookup Information Window.<br>
 Passes control to spellLookupForm to generate the HTML for the Spell Lookup.<br>
 <br>
@@ -2107,7 +1864,7 @@ Passes control to spellLookupForm to generate the HTML for the Spell Lookup.<br>
 
 !!
 @@ @spellLookupForm
-@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell Lookup ; tooltip=<html>Prompt User for Spell to Look Up and Open the Spell Info Dialog.<br>
+@PROPS@ fontColor=black ; autoExecute=true ; fontSize=1.00em ; sortBy= ; color=default ; playerEditable=false ; applyToSelected=0 ; group=Spell Lookup ; tooltip=<html>Prompt User for Spell to Look Up and Open the Spell Info Dialog.<br> ; minWidth=
 <br>
 Provides Main Routine for Spell Lookup Functionality.<br>
 <ul>

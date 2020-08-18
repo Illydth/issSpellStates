@@ -73,6 +73,7 @@ Open the Selection, GM and Campaign Windows.
 * Copy the "Lookup Spell Info" macro to your Campaign Window.
 * Copy the "States Management Form" macro to your GM Window (can go to Campaign if players are setting states)
 * Copy the "Get Token Effects" macro to your Campaign Window.
+* If applicable:  Set all 4 buttons above to non-editible by players or you'll run into problems.
 
 Import the Spells Table
 * Open the Tables Window.
@@ -622,31 +623,29 @@ to set.  This framework could be used entirely wtihout campaign states by simply
 ablities in the issSpellStates table have an empty "States" data section.
 
 Out of the box, the D&D 5e Version of Spell States expects the following campaign states to exist:
-* Advantage							* Incapacitated
-* Blinded							* Inspiration
-* Buffed							* Invisible
-* Changed							* Paralyzed
-* Concentrating						* Petrified
-* CoverFull							* Poisoned
-* CoverHalf							* Prone
-* CoverMost							* Resistance
-* Cursed							* Restrained
-* Dead								* Slowed
-* Deafened							* Stable
-* Debuffed							* Stunned
-* Disabled							* Suffocating
-* Disadvantage						* Transformed
-* Dodging							* Turned
-* Dying								* Unconscious
-* EnhVision
-* Frightened
-* Grappeled
-* Hasted
-* Immunity
+* Advantage							* Frightened
+* Blinded							* Grappeled
+* Buffed							* Hasted
+* Changed							* Immunity
+* Charmed							* Incapacitated
+* Concentrating						* Inspiration
+* CoverFull							* Invisible
+* CoverHalf							* Paralyzed
+* CoverMost							* Petrified
+* Cursed							* Poisoned
+* Dead								* Prone
+* Deafened							* Resistance
+* Debuffed							* Restrained
+* Disabled							* Slowed
+* Disadvantage						* Stable
+* Dodging							* Stunned
+* Dying								* Transformed
+* EnhVision							* Turned
+* Flying							* Unconscious
 
 Along with the above for 5e, "Exhaustion" (generally Exhaustion 1 - Exhaustion 5) is usually a state within 
 the campaign properties, and many campaigns make use of Raging (Barbarian), Shifted (Eberon Ability), Squeezing, 
-and AFK.
+Suffocating, and AFK.
 
 A member of the community has been kind/generous enough to develop a cohesive and comprehensive set of state 
 icons for the above states (and others).  A major shout out to "rogue_ronan" on the Maptool discord and forms
