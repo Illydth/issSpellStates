@@ -555,6 +555,17 @@ is either a 1 or a 0, depending on whether the spell is a spell requiring concen
 * 1 - The spell is a spell requiring concentration.
 
 ----
+*** showSpellInfo@Lib:issSpellStates() ***
+This API takes in a spell or effect name opens the "Lookup Spell Info" form tuned to that spell.  
+
+The lookup is a simple database table pull of the spell name as passed to the API, so any abiltity or spell in the table should
+be able to be retrieved through use of the API.  This is intended to allow "MonsterCreator" or any other drop-in to link a spell
+name and allow that spell to be automatically looked up within issSpellStates.  MonsterCreator, for instance, creates links to
+spells that are castable by monsters.  Those links will open the spell description in the issSpellStates lookup form.
+
+The API has no "output" value, instead it opens the Spell Lookup form with the spell as passed focued.
+
+----
 *** Other APIs ***
 There are plenty more integration points that could be included, however the above should provide the basic functionality
 for dealing wtih the features of issSpellStates.
